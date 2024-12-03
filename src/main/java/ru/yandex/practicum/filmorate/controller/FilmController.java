@@ -10,31 +10,32 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private static final int MAX_DESCRIPTION_LENGTH = 200;
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, Month.DECEMBER, 28);
+    public static final int MAX_DESCRIPTION_LENGTH = 200;
+    public static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, Month.DECEMBER, 28);
 
-    private static final String FILMID_VALIDATION_ERROR = "Id должен быть указан";
-    private static final String FILM_NOT_FOUND_ERROR = "Фильм с id = %d не найден";
-    private static final String NAME_VALIDATION_ERROR = "Название не может быть пустым";
-    private static final String DESCRIPTION_VALIDATION_ERROR = String.format(
+    public static final String FILMID_VALIDATION_ERROR = "Id должен быть указан";
+    public static final String FILM_NOT_FOUND_ERROR = "Фильм с id = %d не найден";
+    public static final String NAME_VALIDATION_ERROR = "Название не может быть пустым";
+    public static final String DESCRIPTION_VALIDATION_ERROR = String.format(
             "Максимальная длина описания — %d символов", MAX_DESCRIPTION_LENGTH);
-    private static final String RELEASE_DATE_VALIDATION_ERROR = String.format(
+    public static final String RELEASE_DATE_VALIDATION_ERROR = String.format(
             "Дата релиза — не раньше %s года", MIN_RELEASE_DATE.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
-    private static final String DURATION_VALIDATION_ERROR = "Продолжительность фильма должна быть положительным числом";
+    public static final String DURATION_VALIDATION_ERROR = "Продолжительность фильма должна быть положительным числом";
 
     private final Map<Long, Film> films = new HashMap<>();
 
     @GetMapping
-    public Collection<Film> getAllFilms() {
-        return films.values();
+    public List<Film> getAllFilms() {
+        return new ArrayList<>(films.values());
     }
 
     @PostMapping

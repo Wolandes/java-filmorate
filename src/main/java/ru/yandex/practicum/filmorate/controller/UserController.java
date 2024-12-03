@@ -8,25 +8,26 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private static final String USERID_VALIDATION_ERROR = "Id должен быть указан";
-    private static final String USER_NOT_FOUND_ERROR = "Пользователь с id = %d не найден";
-    private static final String EMAIL_VALIDATION_ERROR = "Электронная почта не может быть пустой и должна содержать символ @";
-    private static final String LOGIN_VALIDATION_ERROR = "Логин не может быть пустым и содержать пробелы";
-    private static final String BIRTHDAY_VALIDATION_ERROR = "Дата рождения не может быть в будущем";
+    public static final String USERID_VALIDATION_ERROR = "Id должен быть указан";
+    public static final String USER_NOT_FOUND_ERROR = "Пользователь с id = %d не найден";
+    public static final String EMAIL_VALIDATION_ERROR = "Электронная почта не может быть пустой и должна содержать символ @";
+    public static final String LOGIN_VALIDATION_ERROR = "Логин не может быть пустым и содержать пробелы";
+    public static final String BIRTHDAY_VALIDATION_ERROR = "Дата рождения не может быть в будущем";
 
     private final Map<Long, User> users = new HashMap<>();
 
     @GetMapping
-    public Collection<User> getAllUsers() {
-        return users.values();
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
     }
 
     @PostMapping

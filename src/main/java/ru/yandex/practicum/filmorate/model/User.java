@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
  * User.
  */
 @Data
+@Builder(toBuilder = true)
 public class User {
     Long id;
     @NotNull(message = "Электронная почта не может быть пустой")
