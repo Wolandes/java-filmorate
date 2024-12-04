@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.validation.DateAfter;
+import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
 import java.time.LocalDate;
 
@@ -15,13 +17,21 @@ import java.time.LocalDate;
 @Data
 @Builder(toBuilder = true)
 public class Film {
-    Long id;
-    @NotNull(message = "Название не может быть пустым")
-    @NotBlank(message = "Название не может быть пустым")
-    String name;
-    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
-    String description;
-    LocalDate releaseDate;
-    @Positive(message = "Продолжительность фильма должна быть положительным числом")
-    int duration;
+    @NotNull(groups = {ValidatorGroups.Update.class},
+            message = "id должен быть указан")
+    private Long id;
+    @NotBlank(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
+            message = "Название не может быть пустым")
+    private String name;
+    @Size(max = 200, groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
+            message = "Максимальная длина описания — 200 символов")
+    private String description;
+    @NotNull(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
+            message = "Дата релиза не может быть пустой")
+    @DateAfter(date = "1895-12-27", groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
+            message = "Дата релиза — не раньше 28 декабря 1895 года")
+    private LocalDate releaseDate;
+    @Positive(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
+            message = "Продолжительность фильма должна быть положительным числом")
+    private int duration;
 }
