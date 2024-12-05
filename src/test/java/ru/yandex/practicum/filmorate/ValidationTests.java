@@ -34,7 +34,7 @@ public class ValidationTests {
         film.setName("Имя фильма");
         film.setDescription("Описание фильма");
         film.setReleaseDate(LocalDate.now());
-        film.setDuration(100);
+        film.setDuration(80);
         //устанавливаем стандарт
         nameFilm = film;
         maxLengthDescriptionFilm = film;
