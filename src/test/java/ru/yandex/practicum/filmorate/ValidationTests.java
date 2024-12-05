@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validate.Validation;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,7 +34,7 @@ public class ValidationTests {
         film.setName("Имя фильма");
         film.setDescription("Описание фильма");
         film.setReleaseDate(LocalDate.now());
-        film.setDuration(Duration.ofMinutes(10));
+        film.setDuration(100);
         //устанавливаем стандарт
         nameFilm = film;
         maxLengthDescriptionFilm = film;
