@@ -21,7 +21,7 @@ public class UserController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> getAllUsers() {
-        log.info("Вызван метод GET /films");
+        log.info("Вызван метод GET /users");
         List<User> users = userService.getAllUsers();
         log.info("Количество пользователей в ответе = {}", users.size());
         return users;
@@ -31,7 +31,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @Validated({ValidatorGroups.Create.class})
     public User createUser(@RequestBody @Valid User user) {
-        log.info("Вызван метод POST /films с телом {}", user);
+        log.info("Вызван метод POST /users с телом {}", user);
         User newUser = userService.createUser(user);
         log.info("Возвращен ответ {}", newUser);
         return newUser;
@@ -41,7 +41,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @Validated({ValidatorGroups.Update.class})
     public User updateUser(@RequestBody @Valid User user) {
-        log.info("Вызван метод PUT /films с телом {}", user);
+        log.info("Вызван метод PUT /users с телом {}", user);
         User newUser = userService.updateUser(user);
         log.info("Возвращен ответ {}", newUser);
         return newUser;
