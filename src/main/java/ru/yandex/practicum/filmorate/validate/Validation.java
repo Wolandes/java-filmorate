@@ -12,9 +12,9 @@ import java.util.Set;
 @Slf4j
 public class Validation {
 
-    private final int MAX_LENGTH_DESCRIPTION = 200;
-    private final LocalDate MIN_RELEASE_DATA = LocalDate.of(1985, 12, 28);
-    private final char CHECK_SYMBOL = '@';
+    private final int maxLengthDescription = 200;
+    private final LocalDate minReleaseData = LocalDate.of(1985, 12, 28);
+    private final char checkSymbol = '@';
 
     public Film checkValidationFilm(Film film) {
         log.info("Проверка имени");
@@ -67,7 +67,7 @@ public class Validation {
     }
 
     public boolean maxLengthDescription(String description) {
-        if (description.length() > MAX_LENGTH_DESCRIPTION) {
+        if (description.length() > maxLengthDescription) {
             log.info("Максимальная длина описания — 200 символов");
             throw new ValidationException("Максимальная длина описания — 200 символов");
         } else {
@@ -76,11 +76,11 @@ public class Validation {
     }
 
     public boolean minDateReleaseDate(LocalDate date) {
-        if (date.getYear() < MIN_RELEASE_DATA.getYear()) {
+        if (date.getYear() < minReleaseData.getYear()) {
             log.info("Дата релиза — не раньше 28 декабря 1895 года");
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        } else if (date.getYear() == MIN_RELEASE_DATA.getYear()) {
-            if (date.getDayOfYear() < MIN_RELEASE_DATA.getDayOfYear()) {
+        } else if (date.getYear() == minReleaseData.getYear()) {
+            if (date.getDayOfYear() < minReleaseData.getDayOfYear()) {
                 log.info("Дата релиза — не раньше 28 декабря год совпадает");
                 throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
             } else {
@@ -101,7 +101,7 @@ public class Validation {
     }
 
     public boolean checkEmail(String email) {
-        if (email == null || email.isBlank() || email.indexOf(CHECK_SYMBOL) < 0) {
+        if (email == null || email.isBlank() || email.indexOf(checkSymbol) < 0) {
             log.info("Электронная почта не может быть пустой и должна содержать символ @");
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
