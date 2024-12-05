@@ -12,7 +12,7 @@ import java.util.Set;
 public class Validation {
 
     private final int maxLengthDescription = 200;
-    private final LocalDate minReleaseData = LocalDate.of(1985, 12, 28);
+    private final LocalDate minReleaseData = LocalDate.of(1895, 12, 28);
     private final char checkSymbol = '@';
 
     public Film checkValidationFilm(Film film) {
