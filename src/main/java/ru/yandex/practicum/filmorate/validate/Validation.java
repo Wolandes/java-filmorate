@@ -91,8 +91,8 @@ public class Validation {
         }
     }
 
-    public boolean positiveDurationFilm(Duration duration) {
-        if (duration.isPositive()) {
+    public boolean positiveDurationFilm(int duration) {
+        if (duration > 0) {
             return true;
         } else {
             log.info("Продолжительность фильма должна быть положительным числом");

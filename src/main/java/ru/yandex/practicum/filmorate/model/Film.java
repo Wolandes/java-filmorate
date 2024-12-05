@@ -15,5 +15,5 @@ public class Film {
     String name;
     String description;
     LocalDate releaseDate;
-    Duration duration;
+    int duration;
 }
