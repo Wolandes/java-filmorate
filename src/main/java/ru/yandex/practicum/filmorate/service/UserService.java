@@ -14,10 +14,10 @@ public class UserService {
     public static final String USER_NOT_FOUNT_ERROR = "Пользователь с id = %d не найден";
 
     private long sequenceId;
-    private Map<Long, User> users;
+    private final Map<Long, User> users;
 
     public UserService() {
-        sequenceId = 0;
+        sequenceId = 0L;
         users = new HashMap<>();
     }
 

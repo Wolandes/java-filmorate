@@ -23,7 +23,7 @@ public class FilmController {
     public List<Film> getAllFilms() {
         log.info("Вызван метод GET /films");
         List<Film> films = filmService.getAllFilms();
-        log.info("Количество фильмов в ответе = {}", films.size());
+        log.info("Возвращен ответ {}", films);
         return films;
     }
 

@@ -14,15 +14,15 @@ public class FilmService {
     public static final String FILM_NOT_FOUNT_ERROR = "Фильм с id = %d не найден";
 
     private long sequenceId;
-    private Map<Long, Film> films;
+    private final Map<Long, Film> films;
+
+    public FilmService() {
+        sequenceId = 0L;
+        films = new HashMap<>();
+    }
 
     public List<Film> getAllFilms() {
         return new ArrayList<>(films.values());
-    }
-
-    public FilmService() {
-        sequenceId = 0;
-        films = new HashMap<>();
     }
 
     public Film createFilm(Film film) {

@@ -23,7 +23,7 @@ public class UserController {
     public List<User> getAllUsers() {
         log.info("Вызван метод GET /users");
         List<User> users = userService.getAllUsers();
-        log.info("Количество пользователей в ответе = {}", users.size());
+        log.info("Возвращен ответ {}", users);
         return users;
     }
 
