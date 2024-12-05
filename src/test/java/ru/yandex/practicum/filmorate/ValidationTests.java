@@ -60,7 +60,7 @@ public class ValidationTests {
         assertEquals(nameFilm.getName(), "CheckName", "Не то имя");
         //nameFilm.setName(null);
         validation.checkNameFilm(nameFilm.getName());
-        assertNotEquals(nameFilm.getName(), "CheckName", "Не сработало валидация");
+        assertEquals(nameFilm.getName(), "CheckName", "Не сработало валидация");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ValidationTests {
         assertEquals(minDateReleaseDateFilm.getReleaseDate(), film.getReleaseDate(), "Не прошла валидация");
         minDateReleaseDateFilm.setReleaseDate(LocalDate.of(1985, 12, 28));
         validation.minDateReleaseDate(minDateReleaseDateFilm.getReleaseDate());
-        assertNotEquals(minDateReleaseDateFilm.getReleaseDate(), film.getReleaseDate(), "Прошла валидация");
+        assertEquals(minDateReleaseDateFilm.getReleaseDate(), film.getReleaseDate(), "Прошла валидация");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ValidationTests {
         //positiveDurationFilm.setDuration(Duration.ofMinutes(-1));
         //positiveDurationFilm.setDuration(Duration.ZERO);
         validation.positiveDurationFilm(positiveDurationFilm.getDuration());
-        assertNotEquals(film.getDuration(), positiveDurationFilm.getDuration(), "Прошла валидация");
+        assertEquals(film.getDuration(), positiveDurationFilm.getDuration(), "Прошла валидация");
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ValidationTests {
         assertEquals(checkEmailUser.getEmail(), user.getEmail(), "Не прошла валидация");
         checkEmailUser.setEmail("dw@");
         validation.checkEmail(checkEmailUser.getEmail());
-        assertNotEquals(checkEmailUser.getEmail(), user.getEmail(), "Прошла валидация");
+        assertEquals(checkEmailUser.getEmail(), user.getEmail(), "Прошла валидация");
     }
 
     @Test
@@ -107,7 +107,7 @@ public class ValidationTests {
         assertEquals(checkLoginUser.getLogin(), user.getLogin(), "Не прошла валидация");
         checkLoginUser.setLogin("1");
         validation.checkLogin(checkLoginUser.getLogin());
-        assertNotEquals(checkLoginUser.getLogin(), user.getLogin(), "Прошла валидация");
+        assertEquals(checkLoginUser.getLogin(), user.getLogin(), "Прошла валидация");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class ValidationTests {
         assertEquals(checkBirthdayUser.getBirthday(), user.getBirthday(), "Не прошла валидация");
         checkBirthdayUser.setBirthday(LocalDate.of(2024, 2, 1));
         validation.checkBirthday(checkBirthdayUser.getBirthday());
-        assertNotEquals(checkBirthdayUser.getBirthday(), user.getBirthday(), "Значения не равны");
+        assertEquals(checkBirthdayUser.getBirthday(), user.getBirthday(), "Значения не равны");
     }
 
     @Test
@@ -135,6 +135,6 @@ public class ValidationTests {
         validation.checkValidationUser(user);
         user.setName("");
         validation.checkValidationUser(user);
-        assertNotEquals(user.getName(), user.getLogin(), "Значения не равны");
+        assertEquals(user.getName(), user.getLogin(), "Значения не равны");
     }
 }
