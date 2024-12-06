@@ -28,13 +28,11 @@ public class Validation {
     }
 
     public Film checkValidationFilmOnPut(Set<Long> allId, Film film) {
-        for (Long l : allId) {
-            if (film.getId() == l) {
-                checkValidationFilm(film);
-                return film;
-            }
+        if (allId.contains(film.getId())) {
+            checkValidationFilm(film);
+            return film;
         }
-        throw new ValidationException("Нет такого id в списке");
+        throw new ValidationException("Нет такого id в списке: " + film.getId());
     }
 
     public User checkValidationUser(User user) {
@@ -47,13 +45,11 @@ public class Validation {
     }
 
     public User checkValidationUserOnPut(Set<Long> allId, User user) {
-        for (Long l : allId) {
-            if (user.getId() == l) {
-                checkValidationUser(user);
-                return user;
-            }
+        if (allId.contains(user.getId())) {
+            checkValidationUser(user);
+            return user;
         }
-        throw new ValidationException("Нет такого id в списке");
+        throw new ValidationException("Нет такого id в списке: " + user.getId());
     }
 
     public boolean checkNameFilm(String name) {
@@ -66,6 +62,10 @@ public class Validation {
     }
 
     public boolean maxLengthDescription(String description) {
+        if (description == null) {
+            log.info("Нет описания фильма");
+            return true;
+        }
         if (description.length() > maxLengthDescription) {
             log.info("Максимальная длина описания — 200 символов");
             throw new ValidationException("Максимальная длина описания — 200 символов");
@@ -75,16 +75,13 @@ public class Validation {
     }
 
     public boolean minDateReleaseDate(LocalDate date) {
-        if (date.getYear() < minReleaseData.getYear()) {
+        if (date == null) {
+            log.info("Не задано дата релиза");
+            return true;
+        }
+        if (date.isBefore(minReleaseData)) {
             log.info("Дата релиза — не раньше 28 декабря 1895 года");
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        } else if (date.getYear() == minReleaseData.getYear()) {
-            if (date.getDayOfYear() < minReleaseData.getDayOfYear()) {
-                log.info("Дата релиза — не раньше 28 декабря год совпадает");
-                throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-            } else {
-                return true;
-            }
         } else {
             return true;
         }
@@ -116,16 +113,14 @@ public class Validation {
     }
 
     public boolean checkBirthday(LocalDate localDate) {
+        if (localDate == null) {
+            log.info("Не указано дата рождения пользователя");
+            return true;
+        }
         LocalDate localDateNow = LocalDate.now();
-        if (localDateNow.getYear() < localDate.getYear()) {
+        if (localDateNow.isBefore(localDate)) {
             log.info("Год не может быть выше текущего года");
             throw new ValidationException("Дата рождения не может быть в будущем");
-        } else if (localDateNow.getYear() == localDate.getYear()) {
-            log.info("Года совпадают");
-            if (localDateNow.getDayOfYear() < localDate.getDayOfYear()) {
-                throw new ValidationException("Дата рождения не может быть в будущем");
-            }
-            return true;
         } else {
             return true;
         }

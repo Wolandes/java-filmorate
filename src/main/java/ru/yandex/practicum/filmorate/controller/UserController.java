@@ -25,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User postUser(@RequestBody User postUser) {
+    public User addUser(@RequestBody User postUser) {
         log.info("Пошел процесс добавления юзера " + postUser);
         postUser = validation.checkValidationUser(postUser);
         long id = getNextId();
@@ -36,11 +36,11 @@ public class UserController {
     }
 
     @PutMapping
-    public User putUser(@RequestBody User putUser) {
-        log.info("Пошел процесс обновление фильма " + putUser);
+    public User updateUser(@RequestBody User putUser) {
+        log.info("Пошел процесс обновление юзера " + putUser);
         putUser = validation.checkValidationUserOnPut(allUsers.keySet(), putUser);
         allUsers.put(putUser.getId(), putUser);
-        log.info("Фильм обновлен в коллекции: " + putUser);
+        log.info("Юзер обновлен в коллекции: " + putUser);
         return putUser;
     }
 

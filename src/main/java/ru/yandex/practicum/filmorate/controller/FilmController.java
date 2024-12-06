@@ -24,7 +24,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film postFilm(@RequestBody Film postFilm) {
+    public Film addFilm(@RequestBody Film postFilm) {
         log.info("Пошел процесс добавление фильма " + postFilm);
         postFilm = validation.checkValidationFilm(postFilm);
         long id = getNextId();
@@ -35,7 +35,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film putFilm(@RequestBody Film putFilm) {
+    public Film updateFilm(@RequestBody Film putFilm) {
         log.info("Пошел процесс обновление фильма " + putFilm);
         putFilm = validation.checkValidationFilmOnPut(allFilms.keySet(), putFilm);
         allFilms.put(putFilm.getId(), putFilm);
