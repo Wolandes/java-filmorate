@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.validate;
+package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Slf4j
-public class Validation {
+public class ValidationService {
 
     private final int maxLengthDescription = 200;
     private final LocalDate minReleaseData = LocalDate.of(1895, 12, 28);
