@@ -4,6 +4,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.ValidationService;
 
 import java.util.Collection;
@@ -16,40 +17,31 @@ import java.util.Map;
 public class UserController {
 
     ValidationService validationService = new ValidationService();
-    Map<Long, User> allUsers = new HashMap<>();
+    InMemoryUserStorage inMemoryUserStorage;
+
+    UserController(InMemoryUserStorage inMemoryUserStorage){
+        this.inMemoryUserStorage = inMemoryUserStorage;
+    }
 
     @GetMapping
     public Collection<User> getAllUsers() {
         log.info("Получаем данные об всех юзерах");
-        return allUsers.values();
+        return inMemoryUserStorage.getAllUsers();
     }
 
     @PostMapping
     public User addUser(@RequestBody User postUser) {
         log.info("Пошел процесс добавления юзера " + postUser);
         postUser = validationService.checkValidationUser(postUser);
-        long id = getNextId();
-        postUser.setId(id);
-        allUsers.put(postUser.getId(), postUser);
-        log.info("Юзер добавлен в коллекцию: " + postUser);
-        return postUser;
+        return inMemoryUserStorage.addUser(postUser);
     }
 
     @PutMapping
     public User updateUser(@RequestBody User putUser) {
         log.info("Пошел процесс обновление юзера " + putUser);
-        putUser = validationService.checkValidationUserOnPut(allUsers.keySet(), putUser);
-        allUsers.put(putUser.getId(), putUser);
+        putUser = validationService.checkValidationUserOnPut(inMemoryUserStorage.getCollectionAllUsers().keySet(), putUser);
+        inMemoryUserStorage.updateUser(putUser);
         log.info("Юзер обновлен в коллекции: " + putUser);
         return putUser;
-    }
-
-    private long getNextId() {
-        long currentMaxId = allUsers.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 }
