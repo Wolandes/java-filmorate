@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
 import java.util.List;
@@ -15,15 +16,16 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-    private final UserService userService = new UserService();
+    private final UserService userService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> getAllUsers() {
         log.info("Вызван метод GET /users");
         List<User> users = userService.getAllUsers();
-        log.info("Возвращен ответ {}", users);
+        log.info("Метод GET /users вернул ответ {}", users);
         return users;
     }
 
@@ -33,7 +35,7 @@ public class UserController {
     public User createUser(@RequestBody @Valid User user) {
         log.info("Вызван метод POST /users с телом {}", user);
         User newUser = userService.createUser(user);
-        log.info("Возвращен ответ {}", newUser);
+        log.info("Метод POST /users вернул ответ {}", newUser);
         return newUser;
     }
 
@@ -43,7 +45,45 @@ public class UserController {
     public User updateUser(@RequestBody @Valid User user) {
         log.info("Вызван метод PUT /users с телом {}", user);
         User newUser = userService.updateUser(user);
-        log.info("Возвращен ответ {}", newUser);
+        log.info("Метод PUT /users вернул ответ {}", newUser);
         return newUser;
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriends(@PathVariable("id") Long userId) {
+        log.info("Вызван метод GET /users/{id}/friends с id = {}", userId);
+        List<User> userFriends = userService.getFriends(userId);
+        log.info("Метод GET /users/{id}/friends вернул ответ {}", userFriends);
+        return userFriends;
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriendsCommonOther(@PathVariable("id") Long userId,
+                                            @PathVariable("otherId") Long otherId) {
+        log.info("Вызван метод GET /users/{id}/friends/common/{otherId} с id = {} и otherId = {}", userId, otherId);
+        List<User> userFriends = userService.getFriendsCommonOther(userId, otherId);
+        log.info("Метод GET /users/{id}/friends/common/{otherId} вернул ответ {}", userFriends);
+        return userFriends;
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> addFriend(@PathVariable("id") Long userId,
+                                @PathVariable("friendId") Long friendId) {
+        log.info("Вызван метод PUT /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
+        List<User> userFriends = userService.addFriend(userId, friendId);
+        log.info("Метод PUT /{id}/friends/{friendId} вернул ответ {}", userFriends);
+        return userFriends;
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFriend(@PathVariable("id") Long userId,
+                             @PathVariable("friendId") Long friendId) {
+        log.info("Вызван метод DELETE /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
+        userService.removeFriend(userId, friendId);
+        log.info("Метод DELETE /{id}/friends/{friendId} успешно выполнен");
     }
 }
