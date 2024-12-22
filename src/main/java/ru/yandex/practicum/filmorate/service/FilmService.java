@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.LikeComparator;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -103,21 +104,5 @@ public class FilmService {
 
     public Map<Long, Film> getAllMapFilms() {
         return filmStorage.getAllFilmsMap();
-    }
-}
-
-class LikeComparator implements Comparator<Film> {
-    @Override
-    public int compare(Film film1, Film film2) {
-        int size1 = (film1.getIdUserLikes() != null) ? film1.getIdUserLikes().size() : 0;
-        int size2 = (film2.getIdUserLikes() != null) ? film2.getIdUserLikes().size() : 0;
-
-        int comparison = Integer.compare(size2, size1);
-
-        if (comparison == 0) {
-            return Long.compare(film1.getId(), film2.getId());
-        }
-
-        return comparison;
     }
 }
