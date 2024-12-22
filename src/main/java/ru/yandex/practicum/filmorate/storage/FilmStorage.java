@@ -12,6 +12,8 @@ public interface FilmStorage {
 
     Film updateFilm(Film putFilm);
 
+    Film getFilm(Long id);
+
     Map<Long, Film> getAllFilmsMap();
 
     void setAllFilmsMap(Map<Long, Film> allFilmsMap);

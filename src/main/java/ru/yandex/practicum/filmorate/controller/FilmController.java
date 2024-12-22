@@ -14,10 +14,10 @@ import java.util.Collection;
 @Slf4j
 public class FilmController {
 
-    ValidationService validationService = new ValidationService();
-    FilmService filmService;
+    private ValidationService validationService = new ValidationService();
+    private FilmService filmService;
 
-    FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
@@ -45,16 +45,19 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable long userId, @PathVariable long id) {
+        log.info("Пошел процесс добавления лайка пользователем с id: " + userId + ". К фильму с id: " + id);
         filmService.addLike(userId, id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLike(@PathVariable long userId, @PathVariable long id) {
         filmService.deleteLike(userId, id);
+        log.info("Пошел процесс удаления лайка пользователем с id: " + userId + ". К фильму с id: " + id);
     }
 
     @GetMapping("/popular")
     public Collection<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10") Integer count) {
+        log.info("Пошел процесс получения популярных фильмов");
         return filmService.getPopularFilms(count);
     }
 }

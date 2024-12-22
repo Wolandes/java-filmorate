@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -10,18 +11,18 @@ import java.util.*;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-    Map<Long, User> allUsers = new HashMap<>();
+    private Map<Long, User> allUsers = new HashMap<>();
 
-    @Override
-    public Map<Long, User> getCollectionAllUsers() {
-        return allUsers;
-    }
-
-    public Map<Long, Set<User>> friendsMap = new HashMap<>();
+    private Map<Long, Set<User>> friendsMap = new HashMap<>();
 
     @Override
     public void setFriendsMap(Map<Long, Set<User>> friendsMap) {
         this.friendsMap = friendsMap;
+    }
+
+    @Override
+    public Map<Long, User> getCollectionAllUsers() {
+        return allUsers;
     }
 
     @Override
@@ -52,6 +53,26 @@ public class InMemoryUserStorage implements UserStorage {
     public User updateUser(User putUser) {
         allUsers.put(putUser.getId(), putUser);
         return putUser;
+    }
+
+    @Override
+    public User getUser(long id) {
+        User user = allUsers.get(id);
+        if (user == null) {
+            log.info("Нет пользователя с таким id: " + user);
+            throw new NotFoundException("Нет пользователя с таким id: " + user);
+        }
+        return user;
+    }
+
+    @Override
+    public Set<User> getUserFriends(long id) {
+        return friendsMap.get(id);
+    }
+
+    @Override
+    public void updateUsersFriends(long id, Set<User> userSetFriends) {
+        friendsMap.put(id, userSetFriends);
     }
 
     private long getNextId() {

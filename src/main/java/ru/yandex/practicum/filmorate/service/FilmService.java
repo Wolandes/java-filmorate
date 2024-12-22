@@ -17,10 +17,10 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FilmService {
 
-    final FilmStorage filmStorage;
-    final UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
-    LikeComparator likeComparator = new LikeComparator();
+    private final LikeComparator likeComparator = new LikeComparator();
 
     public Collection<Film> getAllFilms() {
         return filmStorage.getAllFilms();
@@ -36,24 +36,15 @@ public class FilmService {
 
     public void addLike(Long userId, Long id) {
         Map<Long, Film> allFilmsMap = filmStorage.getAllFilmsMap();
-        Film film = allFilmsMap.get(id);
-        if (film == null) {
-            throw new NotFoundException("Нет фильма с таким id: " + id);
-        }
-        Map<Long, User> users = userStorage.getCollectionAllUsers();
-        User user = users.get(userId);
-        if (user == null) {
-            throw new NotFoundException("Нет пользователя с таким id: " + user);
-        }
+        Film film = filmStorage.getFilm(id);
+        User user = userStorage.getUser(userId);
         Set<Long> filmLikes = film.getIdUserLikes();
         if (filmLikes == null) {
             filmLikes = new HashSet<>();
         }
-        for (Long filmLike : filmLikes) {
-            if (filmLike == userId) {
-                log.info("Пользователь с id: " + userId + "уже ставил лайк");
-                return;
-            }
+        if (filmLikes.contains(userId)) {
+            log.info("Пользователь с id: " + userId + "уже ставил лайк");
+            return;
         }
         filmLikes.add(userId);
         film.setIdUserLikes(filmLikes);
@@ -64,24 +55,15 @@ public class FilmService {
 
     public void deleteLike(Long userId, Long id) {
         Map<Long, Film> allFilmsMap = filmStorage.getAllFilmsMap();
-        Film film = allFilmsMap.get(id);
-        if (film == null) {
-            throw new NotFoundException("Нет фильма с таким id: " + id);
-        }
-        Map<Long, User> users = userStorage.getCollectionAllUsers();
-        User user = users.get(userId);
-        if (user == null) {
-            throw new NotFoundException("Нет пользователя с таким id: " + user);
-        }
+        Film film = filmStorage.getFilm(id);
+        User user = userStorage.getUser(userId);
         Set<Long> filmLikes = film.getIdUserLikes();
         if (filmLikes == null) {
             filmLikes = new HashSet<>();
         }
-        for (Long filmLike : filmLikes) {
-            if (filmLike == userId) {
-                log.info("Пользователь с id: " + userId + "уже ставил лайк");
-                return;
-            }
+        if (!filmLikes.contains(userId)) {
+            log.info("Пользователь с id: " + userId + " нет в списке тех кто ставил лайк");
+            return;
         }
         filmLikes.remove(userId);
         film.setIdUserLikes(filmLikes);

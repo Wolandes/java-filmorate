@@ -22,4 +22,9 @@ public interface UserStorage {
 
     Map<Long, Set<User>> getFriendsMap();
 
+    User getUser(long id);
+
+    Set<User> getUserFriends(long id);
+
+    void updateUsersFriends(long id, Set<User> userSetFriends);
 }
