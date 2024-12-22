@@ -1,6 +1,7 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -32,7 +33,7 @@ public class ValidationService {
             checkValidationFilm(film);
             return film;
         }
-        throw new ValidationException("Нет такого id в списке: " + film.getId());
+        throw new NotFoundException("Нет такого id в списке: " + film.getId());
     }
 
     public User checkValidationUser(User user) {
@@ -49,7 +50,7 @@ public class ValidationService {
             checkValidationUser(user);
             return user;
         }
-        throw new ValidationException("Нет такого id в списке: " + user.getId());
+        throw new NotFoundException("Нет такого id в списке: " + user.getId());
     }
 
     public boolean checkNameFilm(String name) {

@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -29,10 +27,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film putFilm){
-        allFilms.put(putFilm.getId(),putFilm);
+    public Film updateFilm(Film putFilm) {
+        allFilms.put(putFilm.getId(), putFilm);
         log.info("Фильм обновлен в коллекции: " + putFilm);
         return putFilm;
+    }
+
+    @Override
+    public void setAllFilmsMap(Map<Long, Film> allFilmsMap) {
+        allFilms = allFilmsMap;
     }
 
     private long getNextId() {
@@ -44,7 +47,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         return ++currentMaxId;
     }
 
-    public Map<Long, Film> getCollectionAllFilms(){
+    @Override
+    public Map<Long, Film> getAllFilmsMap() {
         return allFilms;
     }
 }
+
+
+
+
