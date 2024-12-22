@@ -75,6 +75,7 @@ public class UserService {
                 userStorage.updateUsersFriends(id, userSet);
                 userStorage.updateUsersFriends(friendId, friendSet);
                 log.info("Пользователь с id: " + friendId + "удален из списка");
+                return;
             }
         }
         log.info("Пользователь с id: " + friendId + "Нет в списке id");
