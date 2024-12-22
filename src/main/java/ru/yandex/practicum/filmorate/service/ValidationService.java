@@ -1,6 +1,7 @@
-package ru.yandex.practicum.filmorate.validate;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Slf4j
-public class Validation {
+public class ValidationService {
 
     private final int maxLengthDescription = 200;
     private final LocalDate minReleaseData = LocalDate.of(1895, 12, 28);
@@ -32,7 +33,7 @@ public class Validation {
             checkValidationFilm(film);
             return film;
         }
-        throw new ValidationException("Нет такого id в списке: " + film.getId());
+        throw new NotFoundException("Нет такого id в списке: " + film.getId());
     }
 
     public User checkValidationUser(User user) {
@@ -49,7 +50,7 @@ public class Validation {
             checkValidationUser(user);
             return user;
         }
-        throw new ValidationException("Нет такого id в списке: " + user.getId());
+        throw new NotFoundException("Нет такого id в списке: " + user.getId());
     }
 
     public boolean checkNameFilm(String name) {

@@ -1,54 +1,63 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validate.Validation;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.ValidationService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
 
-    Validation validation = new Validation();
-    Map<Long, Film> allFilms = new HashMap<>();
+    private ValidationService validationService = new ValidationService();
+    private FilmService filmService;
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public Collection<Film> getAllFilms() {
         log.info("Получаем данные об всех фильмах");
-        return allFilms.values();
+        return filmService.getAllFilms();
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@RequestBody Film postFilm) {
         log.info("Пошел процесс добавление фильма " + postFilm);
-        postFilm = validation.checkValidationFilm(postFilm);
-        long id = getNextId();
-        postFilm.setId(id);
-        allFilms.put(postFilm.getId(), postFilm);
-        log.info("Фильм добавлен в коллекцию: " + postFilm);
-        return postFilm;
+        postFilm = validationService.checkValidationFilm(postFilm);
+        return filmService.addFilm(postFilm);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film putFilm) {
         log.info("Пошел процесс обновление фильма " + putFilm);
-        putFilm = validation.checkValidationFilmOnPut(allFilms.keySet(), putFilm);
-        allFilms.put(putFilm.getId(), putFilm);
-        log.info("Фильм обновлен в коллекции: " + putFilm);
-        return putFilm;
+        putFilm = validationService.checkValidationFilmOnPut(filmService.getAllMapFilms()
+                .keySet(), putFilm);
+        return filmService.updateFilm(putFilm);
     }
 
-    private long getNextId() {
-        long currentMaxId = allFilms.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable long userId, @PathVariable long id) {
+        log.info("Пошел процесс добавления лайка пользователем с id: " + userId + ". К фильму с id: " + id);
+        filmService.addLike(userId, id);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable long userId, @PathVariable long id) {
+        filmService.deleteLike(userId, id);
+        log.info("Пошел процесс удаления лайка пользователем с id: " + userId + ". К фильму с id: " + id);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10") Integer count) {
+        log.info("Пошел процесс получения популярных фильмов");
+        return filmService.getPopularFilms(count);
     }
 }
