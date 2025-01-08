@@ -1,8 +1,9 @@
 # java-filmorate
 Template repository for Filmorate project.
-![QuickDBD-Free Diagram (5).png](..%2FDownloads%2FQuickDBD-Free%20Diagram%20%285%29.png)
 
-Основные таблицы:
+
+Основные таблицы:![QuickDBD-Free Diagram (5)](https://github.com/user-attachments/assets/f0852ce4-5aca-490a-9bfb-469ed5e09e6f)
+
 
 Film - Хранит информацию о фильмах: название, описание, дата выхода, длительность, рейтинг MPA и пользовательский рейтинг. Связана с таблицей Rating для хранения пользовательских рейтингов. Использует внешний ключ mpa_rating_id для ссылки на таблицу MPA_Rating.
 
