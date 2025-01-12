@@ -1,7 +1,6 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dal;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,7 +9,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmDbStorage implements FilmDbStorage {
 
     private Map<Long, Film> allFilms = new HashMap<>();
 

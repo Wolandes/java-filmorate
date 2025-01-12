@@ -1,6 +1,8 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dal;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -9,7 +11,16 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserDbStorage extends BaseRepository implements UserDbStorage {
+
+    private static final String findAllQuery = "SELECT * FROM Users";
+    private static final String addOneQuery = "INSERT INTO Users (login, name, email, birthday) VALUES (?, ?, ?, ?)";
+    private static final String findOneQuery = "SELECT * FROM Users WHERE id = ?";
+    private static final String updateOneQuery = "UPDATE Users SET login = ?, name = ?, email = ?, birthday = ? WHERE id = ?";
+
+    public InMemoryUserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper){
+        super(jdbc,mapper);
+    }
 
     private Map<Long, User> allUsers = new HashMap<>();
 
@@ -37,27 +48,28 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Collection<User> getAllUsers() {
-        return allUsers.values();
+        return findMany(findAllQuery);
     }
 
     @Override
     public User addUser(User postUser) {
-        long id = getNextId();
+        long id = insert(addOneQuery, postUser.getLogin(),postUser.getName(),postUser.getEmail(),postUser.getBirthday());
         postUser.setId(id);
-        allUsers.put(postUser.getId(), postUser);
         log.info("Юзер добавлен в коллекцию: " + postUser);
         return postUser;
     }
 
     @Override
     public User updateUser(User putUser) {
-        allUsers.put(putUser.getId(), putUser);
+        update(updateOneQuery, putUser.getLogin(),putUser.getName(),putUser.getEmail(),putUser.getBirthday(),putUser.getId());
+        log.info("Юзер обновлен");
         return putUser;
     }
 
     @Override
     public User getUser(long id) {
-        User user = allUsers.get(id);
+        Optional<User> userOptinal = findOne(findOneQuery,String.valueOf(id));
+        User user = userOptinal.get();
         if (user == null) {
             log.info("Нет пользователя с таким id: " + user);
             throw new NotFoundException("Нет пользователя с таким id: " + user);
@@ -73,10 +85,5 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void updateUsersFriends(long id, Set<User> userSetFriends) {
         friendsMap.put(id, userSetFriends);
-    }
-
-    private long getNextId() {
-        long currentMaxId = allUsers.keySet().stream().mapToLong(id -> id).max().orElse(0);
-        return ++currentMaxId;
     }
 }

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,4 +20,6 @@ public class Film {
     LocalDate releaseDate;
     int duration;
     Set<Long> idUserLikes;
+    List<Integer> genres_id;
+    int mpa_id;
 }

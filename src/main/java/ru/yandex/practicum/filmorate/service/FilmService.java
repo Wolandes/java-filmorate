@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.LikeComparator;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dal.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dal.UserDbStorage;
 
 import java.util.*;
 
@@ -16,8 +16,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FilmService {
 
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final FilmDbStorage filmStorage;
+    private final UserDbStorage userStorage;
 
     private final LikeComparator likeComparator = new LikeComparator();
 

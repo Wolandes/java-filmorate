@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dal;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.Map;
 
-public interface FilmStorage {
+public interface FilmDbStorage {
     Collection<Film> getAllFilms();
 
     Film addFilm(Film postFilm);
