@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -17,33 +18,20 @@ public class InMemoryUserDbStorage extends BaseRepository implements UserDbStora
     private static final String addOneQuery = "INSERT INTO Users (login, name, email, birthday) VALUES (?, ?, ?, ?)";
     private static final String findOneQuery = "SELECT * FROM Users WHERE id = ?";
     private static final String updateOneQuery = "UPDATE Users SET login = ?, name = ?, email = ?, birthday = ? WHERE id = ?";
+    private static final String getUserFriends = "SELECT u.id, u.name, u.login, u.birthday FROM Friends_Map as fm JOIN Users as u ON fm.id_Friend = u.id WHERE fm.id_user = ?";
+    private static final String deleteUserFriends = "DELETE FROM Friends_Map WHERE id_User = ?";
+    private static final String insertUserFriends = "INSERT INTO Friends_Map (id_User, id_Friend) VALUES (?, ?)";
+    private static final String getCollections = "SELECT id, name, email, login, birthday FROM Users";
 
-    public InMemoryUserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper){
-        super(jdbc,mapper);
-    }
-
-    private Map<Long, User> allUsers = new HashMap<>();
-
-    private Map<Long, Set<User>> friendsMap = new HashMap<>();
-
-    @Override
-    public void setFriendsMap(Map<Long, Set<User>> friendsMap) {
-        this.friendsMap = friendsMap;
+    public InMemoryUserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
+        super(jdbc, mapper);
     }
 
     @Override
     public Map<Long, User> getCollectionAllUsers() {
-        return allUsers;
-    }
-
-    @Override
-    public Map<Long, Set<User>> getFriendsMap() {
-        return friendsMap;
-    }
-
-    @Override
-    public void setCollectionAllUsers(Map<Long, User> allUsers1) {
-        allUsers = allUsers1;
+        List<User> userList = jdbc.query(getCollections, mapper);
+        return userList.stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
     }
 
     @Override
@@ -53,7 +41,7 @@ public class InMemoryUserDbStorage extends BaseRepository implements UserDbStora
 
     @Override
     public User addUser(User postUser) {
-        long id = insert(addOneQuery, postUser.getLogin(),postUser.getName(),postUser.getEmail(),postUser.getBirthday());
+        long id = insert(addOneQuery, postUser.getLogin(), postUser.getName(), postUser.getEmail(), postUser.getBirthday());
         postUser.setId(id);
         log.info("Юзер добавлен в коллекцию: " + postUser);
         return postUser;
@@ -61,29 +49,37 @@ public class InMemoryUserDbStorage extends BaseRepository implements UserDbStora
 
     @Override
     public User updateUser(User putUser) {
-        update(updateOneQuery, putUser.getLogin(),putUser.getName(),putUser.getEmail(),putUser.getBirthday(),putUser.getId());
+        update(updateOneQuery, putUser.getLogin(), putUser.getName(), putUser.getEmail(), putUser.getBirthday(), putUser.getId());
         log.info("Юзер обновлен");
         return putUser;
     }
 
     @Override
     public User getUser(long id) {
-        Optional<User> userOptinal = findOne(findOneQuery,String.valueOf(id));
+        Optional<User> userOptinal = findOne(findOneQuery, String.valueOf(id));
         User user = userOptinal.get();
         if (user == null) {
-            log.info("Нет пользователя с таким id: " + user);
-            throw new NotFoundException("Нет пользователя с таким id: " + user);
+            log.info("Нет пользователя с таким id: " + id);
+            throw new NotFoundException("Нет пользователя с таким id: " + id);
         }
         return user;
     }
 
     @Override
     public Set<User> getUserFriends(long id) {
-        return friendsMap.get(id);
+        List<User> friends = jdbc.query(getUserFriends, mapper, id);
+        return new HashSet<>(friends);
     }
 
     @Override
     public void updateUsersFriends(long id, Set<User> userSetFriends) {
-        friendsMap.put(id, userSetFriends);
+        if (userSetFriends == null || userSetFriends.isEmpty()) {
+            jdbc.update(deleteUserFriends, id);
+            return;
+        }
+        jdbc.update(deleteUserFriends, id);
+        for (User friend : userSetFriends) {
+            jdbc.update(insertUserFriends, id, friend.getId());
+        }
     }
 }

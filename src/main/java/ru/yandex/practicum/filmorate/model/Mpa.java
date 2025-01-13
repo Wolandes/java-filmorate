@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
-public class MPA {
-    int id;
-    String nameMpa;
+public class Mpa {
+    long id;
+    String name;
 }

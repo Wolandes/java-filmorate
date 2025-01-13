@@ -16,12 +16,6 @@ public interface UserDbStorage {
 
     Map<Long, User> getCollectionAllUsers();
 
-    void setCollectionAllUsers(Map<Long, User> allUsers1);
-
-    void setFriendsMap(Map<Long, Set<User>> friendsMap);
-
-    Map<Long, Set<User>> getFriendsMap();
-
     User getUser(long id);
 
     Set<User> getUserFriends(long id);
