@@ -36,17 +36,11 @@ public class UserService {
         User user = userStorage.getUser(id);
         User friend = userStorage.getUser(friendId);
         Set<User> userSet = userStorage.getUserFriends(id);
-        Set<User> friendSet = userStorage.getUserFriends(friendId);
         if (userSet == null) {
             userSet = new HashSet<>();
         }
-        if (friendSet == null) {
-            friendSet = new HashSet<>();
-        }
         userSet.add(friend);
-        friendSet.add(user);
         userStorage.updateUsersFriends(id, userSet);
-        userStorage.updateUsersFriends(friendId, friendSet);
         log.info("Друг добавлен с id: " + friendId);
     }
 
@@ -58,22 +52,14 @@ public class UserService {
         User user = userStorage.getUser(id);
         User friend = userStorage.getUser(friendId);
         Set<User> userSet = userStorage.getUserFriends(id);
-        Set<User> friendSet = userStorage.getUserFriends(id);
         if (userSet == null) {
             userStorage.updateUsersFriends(user.getId(), null);
             log.info("нет списка друзей");
         }
-        if (friendSet == null) {
-            log.info("нет списка друзей");
-            userStorage.updateUsersFriends(friend.getId(), null);
-            return;
-        }
         for (User user1 : userSet) {
             if (user1.getId() == friendId) {
                 userSet.remove(friend);
-                friendSet.remove(user);
                 userStorage.updateUsersFriends(id, userSet);
-                userStorage.updateUsersFriends(friendId, friendSet);
                 log.info("Пользователь с id: " + friendId + "удален из списка");
                 return;
             }

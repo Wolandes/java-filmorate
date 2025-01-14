@@ -18,7 +18,7 @@ public class InMemoryUserDbStorage extends BaseRepository implements UserDbStora
     private static final String addOneQuery = "INSERT INTO Users (login, name, email, birthday) VALUES (?, ?, ?, ?)";
     private static final String findOneQuery = "SELECT * FROM Users WHERE id = ?";
     private static final String updateOneQuery = "UPDATE Users SET login = ?, name = ?, email = ?, birthday = ? WHERE id = ?";
-    private static final String getUserFriends = "SELECT u.id, u.name, u.login, u.birthday FROM Friends_Map as fm JOIN Users as u ON fm.id_Friend = u.id WHERE fm.id_user = ?";
+    private static final String getUserFriends = "SELECT u.id, u.name, u.email, u.login, u.birthday FROM Friends_Map as fm JOIN Users as u ON fm.id_Friend = u.id WHERE fm.id_user = ? ORDER BY id";
     private static final String deleteUserFriends = "DELETE FROM Friends_Map WHERE id_User = ?";
     private static final String insertUserFriends = "INSERT INTO Friends_Map (id_User, id_Friend) VALUES (?, ?)";
     private static final String getCollections = "SELECT id, name, email, login, birthday FROM Users";
@@ -58,10 +58,6 @@ public class InMemoryUserDbStorage extends BaseRepository implements UserDbStora
     public User getUser(long id) {
         Optional<User> userOptinal = findOne(findOneQuery, String.valueOf(id));
         User user = userOptinal.get();
-        if (user == null) {
-            log.info("Нет пользователя с таким id: " + id);
-            throw new NotFoundException("Нет пользователя с таким id: " + id);
-        }
         return user;
     }
 

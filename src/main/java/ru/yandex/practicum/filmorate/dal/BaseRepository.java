@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -21,7 +22,7 @@ public class BaseRepository<T> {
             T result = jdbc.queryForObject(query, mapper, params);
             return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException ignored) {
-            return Optional.empty();
+            throw new NotFoundException("Нет значения");
         }
     }
 
