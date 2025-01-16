@@ -1,10 +1,9 @@
-package ru.yandex.practicum.filmorate.dal;
+package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -12,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class InMemoryUserDbStorage extends BaseRepository implements UserDbStorage {
+public class JdbcUserRepository extends BaseRepository implements UserRepository {
 
     private static final String findAllQuery = "SELECT * FROM Users";
     private static final String addOneQuery = "INSERT INTO Users (login, name, email, birthday) VALUES (?, ?, ?, ?)";
@@ -23,7 +22,7 @@ public class InMemoryUserDbStorage extends BaseRepository implements UserDbStora
     private static final String insertUserFriends = "INSERT INTO Friends_Map (id_User, id_Friend) VALUES (?, ?)";
     private static final String getCollections = "SELECT id, name, email, login, birthday FROM Users";
 
-    public InMemoryUserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
+    public JdbcUserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
     }
 

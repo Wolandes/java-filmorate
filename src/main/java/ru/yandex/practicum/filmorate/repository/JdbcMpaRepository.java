@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal;
+package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,12 +12,12 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class InMemoryMpaDbStorage extends BaseRepository {
+public class JdbcMpaRepository extends BaseRepository {
 
     private static final String findAllQuery = "SELECT * FROM Mpa_Rating";
     private static final String findOneQuery = "SELECT * FROM Mpa_Rating WHERE id = ?";
 
-    public InMemoryMpaDbStorage(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
+    public JdbcMpaRepository(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);
     }
 

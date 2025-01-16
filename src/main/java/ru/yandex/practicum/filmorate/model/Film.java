@@ -16,7 +16,6 @@ public class Film {
     String description;
     LocalDate releaseDate;
     int duration;
-    Set<Long> idUserLikes;
-    Set<Genre> genres;
     Mpa mpa;
+    Set<Genre> genres;
 }

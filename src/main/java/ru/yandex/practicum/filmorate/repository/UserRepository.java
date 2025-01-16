@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal;
+package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public interface UserDbStorage {
+public interface UserRepository {
     Collection<User> getAllUsers();
 
     User addUser(User postUser);

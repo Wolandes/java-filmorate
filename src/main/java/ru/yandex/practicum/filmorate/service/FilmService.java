@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.LikeComparator;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.dal.FilmDbStorage;
-import ru.yandex.practicum.filmorate.dal.UserDbStorage;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.*;
 
@@ -16,74 +15,52 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FilmService {
 
-    private final FilmDbStorage filmStorage;
-    private final UserDbStorage userStorage;
-
-    private final LikeComparator likeComparator = new LikeComparator();
+    private final FilmRepository filmRepository;
+    private final UserRepository userStorage;
 
     public Collection<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+        return filmRepository.getAllFilms();
     }
 
     public Film addFilm(Film postFilm) {
-        return filmStorage.addFilm(postFilm);
+        return filmRepository.addFilm(postFilm);
     }
 
     public Film updateFilm(Film putFilm) {
-        return filmStorage.updateFilm(putFilm);
+        return filmRepository.updateFilm(putFilm);
     }
 
-    public void addLike(Long userId, Long id) {
-        Map<Long, Film> allFilmsMap = filmStorage.getAllFilmsMap();
-        Film film = filmStorage.getFilm(id);
-        User user = userStorage.getUser(userId);
-        Set<Long> filmLikes = film.getIdUserLikes();
-        if (filmLikes == null) {
-            filmLikes = new HashSet<>();
-        }
-        if (filmLikes.contains(userId)) {
-            log.info("Пользователь с id: " + userId + "уже ставил лайк");
+    public void addLike(Long userId, Long filmId) {
+        userStorage.getUser(userId); // Проверка существования пользователя
+        filmRepository.getFilm(filmId); // Проверка существования фильма
+
+        if (filmRepository.isLikeExists(filmId, userId)) {
+            log.info("Пользователь с id: {} уже ставил лайк фильму с id: {}", userId, filmId);
             return;
         }
-        filmLikes.add(userId);
-        film.setIdUserLikes(filmLikes);
-        allFilmsMap.put(film.getId(), film);
-        filmStorage.setAllFilmsMap(allFilmsMap);
-        log.info("Пользователь c id: " + userId + " поставил лайк");
+
+        filmRepository.addLike(filmId, userId);
+        log.info("Пользователь с id: {} поставил лайк фильму с id: {}", userId, filmId);
     }
 
-    public void deleteLike(Long userId, Long id) {
-        Map<Long, Film> allFilmsMap = filmStorage.getAllFilmsMap();
-        Film film = filmStorage.getFilm(id);
-        User user = userStorage.getUser(userId);
-        Set<Long> filmLikes = film.getIdUserLikes();
-        if (filmLikes == null) {
-            filmLikes = new HashSet<>();
-        }
-        if (!filmLikes.contains(userId)) {
-            log.info("Пользователь с id: " + userId + " нет в списке тех кто ставил лайк");
+    public void deleteLike(Long userId, Long filmId) {
+        userStorage.getUser(userId); // Проверка существования пользователя
+        filmRepository.getFilm(filmId); // Проверка существования фильма
+
+        if (!filmRepository.isLikeExists(filmId, userId)) {
+            log.info("Пользователь с id: {} не ставил лайк фильму с id: {}", userId, filmId);
             return;
         }
-        filmLikes.remove(userId);
-        film.setIdUserLikes(filmLikes);
-        allFilmsMap.put(film.getId(), film);
-        filmStorage.setAllFilmsMap(allFilmsMap);
-        log.info("Пользователь c id: " + userId + " удалил лайк");
+
+        filmRepository.deleteLike(filmId, userId);
+        log.info("Пользователь с id: {} удалил лайк фильму с id: {}", userId, filmId);
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        Collection<Film> filmSet = filmStorage.getAllFilms();
-        TreeSet<Film> filmTreeSet = new TreeSet<>(likeComparator);
-        filmTreeSet.addAll(filmSet);
-        List<Film> filmList = new ArrayList<>(filmTreeSet);
-
-        if (count > filmList.size()) {
-            count = filmList.size();
-        }
-        return filmList.subList(0, count);
+    public List<Film> getPopularFilms(int count) {
+        return filmRepository.getPopularFilms(count);
     }
 
     public Map<Long, Film> getAllMapFilms() {
-        return filmStorage.getAllFilmsMap();
+        return filmRepository.getAllFilmsMap();
     }
 }

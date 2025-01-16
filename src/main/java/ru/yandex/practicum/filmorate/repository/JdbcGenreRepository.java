@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal;
+package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,12 +12,12 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class InMemoryGenreDbStorage extends BaseRepository {
+public class JdbcGenreRepository extends BaseRepository {
 
     private static final String findAllQuery = "SELECT * FROM Genre";
     private static final String findOneQuery = "SELECT * FROM Genre WHERE id = ?";
 
-    public InMemoryGenreDbStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper){
+    public JdbcGenreRepository(JdbcTemplate jdbc, RowMapper<Genre> mapper){
         super(jdbc,mapper);
     }
 
