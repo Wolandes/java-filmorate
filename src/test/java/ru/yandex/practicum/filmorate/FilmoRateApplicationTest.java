@@ -38,6 +38,15 @@ public class FilmoRateApplicationTest {
 
     @Test
     void testFindAllFilms() {
+        Film film = new Film();
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setName("Test Film");
+        film.setDescription("A test film description.");
+        film.setReleaseDate(LocalDate.of(2025, 1, 18));
+        film.setDuration(120);
+        film.setMpa(mpa);
+        Film savedFilm = filmRepository.addFilm(film);
         Collection<Film> films = filmRepository.getAllFilms();
         assertThat(films).isNotNull().isNotEmpty();
     }
