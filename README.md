@@ -1,9 +1,4 @@
-# java-filmorate
-Template repository for Filmorate project.
-
-
-Основные таблицы:![QuickDBD-Free Diagram (5)](https://github.com/user-attachments/assets/f0852ce4-5aca-490a-9bfb-469ed5e09e6f)
-
+Основные таблицы: ![QuickDBD-Free Diagram (7)](https://github.com/user-attachments/assets/af1dcd05-f794-4059-9675-48c3795bcfc4)
 
 Film - Хранит информацию о фильмах: название, описание, дата выхода, длительность, рейтинг MPA и пользовательский рейтинг. Связана с таблицей Rating для хранения пользовательских рейтингов. Использует внешний ключ mpa_rating_id для ссылки на таблицу MPA_Rating.
 
@@ -11,7 +6,7 @@ MPA_Rating - Содержит предопределённые значения 
 
 User - Хранит данные пользователей, включая email, логин, имя и дату рождения. Связана с таблицей Friendship для управления друзьями.
 
-Friendship - Отражает социальные связи между пользователями.Поля requester_id и responder_id представляют инициатора и получателя заявки.Поле status указывает статус дружбы (например, pending, accepted, rejected).
+Friendship - Отражает социальные связи между пользователями. Поля `requester_id` и `responder_id` представляют инициатора и получателя заявки. Поле `status` указывает статус дружбы (например, pending, accepted, rejected).
 
 Genre - Содержит список жанров фильмов.
 
