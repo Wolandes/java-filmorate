@@ -15,11 +15,11 @@ public class MpaService {
 
     private final JdbcMpaRepository mpaDbStorage;
 
-    public Collection<Mpa> getAllMpa(){
+    public Collection<Mpa> getAllMpa() {
         return mpaDbStorage.getAllMpa();
     }
 
-    public Mpa getMpa(long id){
+    public Mpa getMpa(long id) {
         return mpaDbStorage.getMpa(id);
     }
 }

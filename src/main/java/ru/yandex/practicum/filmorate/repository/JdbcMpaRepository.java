@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class JdbcMpaRepository extends BaseRepository {
+public class JdbcMpaRepository extends BaseRepository<Mpa> implements MpaRepository {
 
     private static final String findAllQuery = "SELECT * FROM Mpa_Rating";
     private static final String findOneQuery = "SELECT * FROM Mpa_Rating WHERE id = ?";
@@ -25,7 +25,7 @@ public class JdbcMpaRepository extends BaseRepository {
         return findMany(findAllQuery);
     }
 
-    public Mpa getMpa(long id){
+    public Mpa getMpa(long id) {
         Optional<Mpa> genreOptinal = findOne(findOneQuery, String.valueOf(id));
         Mpa mpa = genreOptinal.get();
         if (mpa == null) {

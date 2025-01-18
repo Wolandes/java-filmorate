@@ -21,6 +21,11 @@ public class FilmController {
         this.filmService = filmService;
     }
 
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable long id) {
+        return filmService.getFilm(id);
+    }
+
     @GetMapping
     public Collection<Film> getAllFilms() {
         log.info("Получаем данные об всех фильмах");

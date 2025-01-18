@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class JdbcUserRepository extends BaseRepository implements UserRepository {
+public class JdbcUserRepository extends BaseRepository<User> implements UserRepository {
 
     private static final String findAllQuery = "SELECT * FROM Users";
     private static final String addOneQuery = "INSERT INTO Users (login, name, email, birthday) VALUES (?, ?, ?, ?)";

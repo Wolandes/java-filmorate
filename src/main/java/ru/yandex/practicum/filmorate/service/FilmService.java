@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
@@ -20,6 +19,11 @@ public class FilmService {
 
     public Collection<Film> getAllFilms() {
         return filmRepository.getAllFilms();
+    }
+
+    //
+    public Film getFilm(long id) {
+        return filmRepository.getFilm(id);
     }
 
     public Film addFilm(Film postFilm) {
