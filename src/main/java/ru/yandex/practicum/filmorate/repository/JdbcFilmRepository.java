@@ -25,7 +25,30 @@ public class JdbcFilmRepository extends BaseRepository<Film> implements FilmRepo
 
     @Override
     public Collection<Film> getAllFilms() {
-        return findMany(findAllQuery);
+        String allFilmsGenresQuery = "SELECT g.id, g.name FROM FILM_GENRE fg JOIN Genre g WHERE FG.GENRE_ID = g.id";
+        Collection<Film> allFilms = findMany(findAllQuery);
+        if (allFilms.isEmpty()) {
+            log.info("Список пуст");
+            return allFilms;
+        }
+        List<Genre> genres = jdbc.query(allFilmsGenresQuery, new GenreRowMapper());
+        Map<Long, Set<Genre>> filmGenresMap = new HashMap<>();
+        for (Genre genre : genres) {
+            Long filmId = genre.getId();
+            if (!filmGenresMap.containsKey(filmId)) {
+                filmGenresMap.put(filmId, new HashSet<>());
+            }
+            filmGenresMap.get(filmId).add(genre);
+        }
+        for (Film film : allFilms) {
+            Set<Genre> filmGenres = filmGenresMap.get(film.getId());
+
+            if (filmGenres == null) {
+                filmGenres = Collections.emptySet();
+            }
+            film.setGenres(filmGenres);
+        }
+        return allFilms;
     }
 
     @Override
@@ -101,7 +124,29 @@ public class JdbcFilmRepository extends BaseRepository<Film> implements FilmRepo
 
     @Override
     public List<Film> getPopularFilms(int count) {
-        return jdbc.query("SELECT f.*, m.name AS mpa_name, COUNT(fl.user_id) AS likes " + "FROM Films f " + "LEFT JOIN Film_likes fl ON f.id = fl.film_id " + "JOIN Mpa_Rating m ON f.mpa_rating_id = m.id " + "GROUP BY f.id " + "ORDER BY likes DESC " + "LIMIT ?", new FilmRowMapper(), count);
+        String allFilmsGenresQuery = "SELECT g.id, g.name FROM FILM_GENRE fg JOIN Genre g WHERE FG.GENRE_ID = g.id";
+        List<Film> popularFilms = jdbc.query("SELECT f.*, m.name AS mpa_name, COUNT(fl.user_id) AS likes " + "FROM Films f " + "LEFT JOIN Film_likes fl ON f.id = fl.film_id " + "JOIN Mpa_Rating m ON f.mpa_rating_id = m.id " + "GROUP BY f.id " + "ORDER BY likes DESC " + "LIMIT ?", new FilmRowMapper(), count);
+        if (popularFilms.isEmpty()) {
+            log.info("Список пуст");
+            return popularFilms;
+        }
+        List<Genre> genres = jdbc.query(allFilmsGenresQuery, new GenreRowMapper());
+        Map<Long, Set<Genre>> filmGenresMap = new HashMap<>();
+        for (Genre genre : genres) {
+            Long filmId = genre.getId();
+            if (!filmGenresMap.containsKey(filmId)) {
+                filmGenresMap.put(filmId, new HashSet<>());
+            }
+            filmGenresMap.get(filmId).add(genre);
+        }
+        for (Film film : popularFilms) {
+            Set<Genre> filmGenres = filmGenresMap.get(film.getId());
+            if (filmGenres == null) {
+                filmGenres = Collections.emptySet();
+            }
+            film.setGenres(filmGenres);
+        }
+        return popularFilms;
     }
 }
 

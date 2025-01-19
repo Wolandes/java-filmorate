@@ -27,11 +27,10 @@ public class JdbcGenreRepository extends BaseRepository<Genre> implements GenreR
 
     public Genre getGenre(long id) {
         Optional<Genre> genreOptinal = findOne(findOneQuery, String.valueOf(id));
-        Genre genre = genreOptinal.get();
-        if (genre == null) {
-            log.info("Нет пользователя с таким id: " + id);
-            throw new NotFoundException("Нет пользователя с таким id: " + id);
+        if (genreOptinal.isEmpty()) {
+            log.info("Нет жанра с таким id: " + id);
+            throw new NotFoundException("Нет жанра с таким id: " + id);
         }
-        return genre;
+        return genreOptinal.get();
     }
 }

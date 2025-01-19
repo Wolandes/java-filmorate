@@ -27,11 +27,10 @@ public class JdbcMpaRepository extends BaseRepository<Mpa> implements MpaReposit
 
     public Mpa getMpa(long id) {
         Optional<Mpa> genreOptinal = findOne(findOneQuery, String.valueOf(id));
-        Mpa mpa = genreOptinal.get();
-        if (mpa == null) {
-            log.info("Нет пользователя с таким id: " + id);
-            throw new NotFoundException("Нет пользователя с таким id: " + id);
+        if (genreOptinal.isEmpty()) {
+            log.info("Нет возрастного рейтинга с таким id: " + id);
+            throw new NotFoundException("Нет возрастного рейтинга с таким id: " + id);
         }
-        return mpa;
+        return genreOptinal.get();
     }
 }

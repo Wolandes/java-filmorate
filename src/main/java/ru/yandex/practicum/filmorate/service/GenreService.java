@@ -16,10 +16,12 @@ public class GenreService {
     private final JdbcGenreRepository genreDbStorage;
 
     public Collection<Genre> getAllGenres() {
+        log.info("Получение информации об всех жанрах");
         return genreDbStorage.getAllGenres();
     }
 
     public Genre getGenre(long id) {
+        log.info("Получение информации об жанре с id: " + id);
         return genreDbStorage.getGenre(id);
     }
 }

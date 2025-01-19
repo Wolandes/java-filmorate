@@ -16,10 +16,12 @@ public class MpaService {
     private final JdbcMpaRepository mpaDbStorage;
 
     public Collection<Mpa> getAllMpa() {
+        log.info("Получение информации об всех возрастных рейтингах");
         return mpaDbStorage.getAllMpa();
     }
 
     public Mpa getMpa(long id) {
+        log.info("Получение информации об возрастном рейтинге с id: " + id);
         return mpaDbStorage.getMpa(id);
     }
 }
