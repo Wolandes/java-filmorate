@@ -45,7 +45,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) throws NotFoundException {
         if (!films.containsKey(film.getId())) {
-            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film.getId()));
+            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, film.getId()));
         }
         films.put(film.getId(), film);
         return film;

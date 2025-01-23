@@ -50,7 +50,7 @@ public class UserServiceImplTest {
         User newUser = userService.createUser(user.toBuilder().build());
 
         Throwable throwable = assertThrows(NotFoundException.class, () -> userService.updateUser(user.toBuilder().id(0L).build()));
-        assertEquals(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, 0L), throwable.getMessage(), "Текст сообщения не совпадает");
+        assertEquals(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, 0L), throwable.getMessage(), "Текст сообщения не совпадает");
 
         assertDoesNotThrow(() -> userService.updateUser(newUser.toBuilder().login("login").build()));
         assertEquals("login", userService.getAllUsers().getFirst().getLogin(), "Не совпадают имена");

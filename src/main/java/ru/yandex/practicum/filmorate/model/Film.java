@@ -4,18 +4,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.DateAfter;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 
 /**
  * Film.
  */
 @Data
 @Builder(toBuilder = true)
+@AllArgsConstructor
 public class Film {
     @NotNull(groups = {ValidatorGroups.Update.class},
             message = "id должен быть указан")
@@ -34,4 +37,8 @@ public class Film {
     @Positive(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
             message = "Продолжительность фильма должна быть положительным числом")
     private int duration;
+    @NotNull(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
+            message = "Возрастной рейтинг не может быть пустым")
+    private Mpaa mpa;
+    private LinkedHashSet<Genre> genres;
 }

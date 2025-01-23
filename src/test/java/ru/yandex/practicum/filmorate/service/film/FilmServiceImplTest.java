@@ -29,7 +29,7 @@ public class FilmServiceImplTest {
         Film newFilm = filmStorage.createFilm(film.toBuilder().build());
 
         Throwable throwable = assertThrows(NotFoundException.class, () -> filmStorage.updateFilm(film.toBuilder().id(0L).build()));
-        assertEquals(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, 0L), throwable.getMessage(), "Текст сообщения не совпадает");
+        assertEquals(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, 0L), throwable.getMessage(), "Текст сообщения не совпадает");
 
         assertDoesNotThrow(() -> filmStorage.updateFilm(newFilm.toBuilder().name("Film").build()));
         assertEquals("Film", filmStorage.getAllFilms().getFirst().getName(), "Не совпадают имена");
