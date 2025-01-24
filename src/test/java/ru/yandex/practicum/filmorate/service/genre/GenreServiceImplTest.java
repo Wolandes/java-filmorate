@@ -34,9 +34,9 @@ public class GenreServiceImplTest {
     @DisplayName("Получить жанр по id")
     public void shouldGetGenre() {
         Genre testGenre = getTestGenre();
-        Optional<Genre> GenreOptional = Optional.ofNullable(genreService.getGenre(testGenre.getId()));
+        Optional<Genre> genreOptional = Optional.ofNullable(genreService.getGenre(testGenre.getId()));
 
-        assertThat(GenreOptional)
+        assertThat(genreOptional)
                 .isPresent()
                 .get()
                 .usingRecursiveComparison()
