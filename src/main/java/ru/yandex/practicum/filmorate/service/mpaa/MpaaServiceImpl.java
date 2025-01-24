@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class MpaaServiceDbImpl implements MpaaService {
+public class MpaaServiceImpl implements MpaaService {
     private final MpaaStorage mpaaStorage;
 
     @Override

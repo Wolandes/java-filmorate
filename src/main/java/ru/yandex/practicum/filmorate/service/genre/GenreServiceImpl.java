@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class GenreServiceDbImpl implements GenreService {
+public class GenreServiceImpl implements GenreService {
     private final GenreStorage genreStorage;
 
     @Override
