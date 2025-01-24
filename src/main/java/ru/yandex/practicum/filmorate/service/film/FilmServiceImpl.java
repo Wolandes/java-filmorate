@@ -49,11 +49,11 @@ public class FilmServiceImpl implements FilmService {
         if (film.getGenres() == null) {
             film.setGenres(new LinkedHashSet<>());
         }
-        List<Long> genre_ids = film.getGenres().stream()
+        List<Long> genreIds = film.getGenres().stream()
                 .map(Genre::getId)
                 .toList();
-        if (genreStorage.getGenres(genre_ids).size() != genre_ids.size()) {
-            throw new NotFoundChildException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genre_ids));
+        if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
+            throw new NotFoundChildException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
         return filmStorage.createFilm(film);
     }
@@ -69,11 +69,11 @@ public class FilmServiceImpl implements FilmService {
         if (film.getGenres() == null) {
             film.setGenres(new LinkedHashSet<>());
         }
-        List<Long> genre_ids = film.getGenres().stream()
+        List<Long> genreIds = film.getGenres().stream()
                 .map(Genre::getId)
                 .toList();
-        if (genreStorage.getGenres(genre_ids).size() != genre_ids.size()) {
-            throw new NotFoundChildException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genre_ids));
+        if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
+            throw new NotFoundChildException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
         return filmStorage.updateFilm(film);
     }
