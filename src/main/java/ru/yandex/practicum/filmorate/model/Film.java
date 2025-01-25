@@ -12,11 +12,11 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode
 public class Film {
-
     long id;
     String name;
     String description;
     LocalDate releaseDate;
     int duration;
-    Set<Long> idUserLikes;
+    Mpa mpa;
+    Set<Genre> genres;
 }

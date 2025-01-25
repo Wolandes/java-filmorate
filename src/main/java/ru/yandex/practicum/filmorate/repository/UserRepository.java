@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public interface UserStorage {
+public interface UserRepository {
     Collection<User> getAllUsers();
 
     User addUser(User postUser);
@@ -15,12 +15,6 @@ public interface UserStorage {
     User updateUser(User putUser);
 
     Map<Long, User> getCollectionAllUsers();
-
-    void setCollectionAllUsers(Map<Long, User> allUsers1);
-
-    void setFriendsMap(Map<Long, Set<User>> friendsMap);
-
-    Map<Long, Set<User>> getFriendsMap();
 
     User getUser(long id);
 

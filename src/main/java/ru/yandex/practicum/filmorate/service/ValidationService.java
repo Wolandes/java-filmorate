@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -25,6 +26,10 @@ public class ValidationService {
         minDateReleaseDate(film.getReleaseDate());
         log.info("Проверка продолжительности");
         positiveDurationFilm(film.getDuration());
+        log.info("Проверка на наличие действительности жанра");
+        checkMpa(film.getMpa().getId());
+        log.info("Проверка на наличии действительности возрастного рейтинга");
+        checkGenre(film);
         return film;
     }
 
@@ -134,5 +139,23 @@ public class ValidationService {
         } else {
             return login;
         }
+    }
+
+    public boolean checkMpa(long id) {
+        if (id == 0 || id > 5) {
+            throw new ValidationException("Нет такого рейтинга с id: " + id);
+        }
+        return true;
+    }
+
+    public boolean checkGenre(Film film) {
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                if (genre.getId() == 0 || genre.getId() > 6) {
+                    throw new ValidationException("Нет такого жанра с id: " + genre.getId());
+                }
+            }
+        }
+        return true;
     }
 }
