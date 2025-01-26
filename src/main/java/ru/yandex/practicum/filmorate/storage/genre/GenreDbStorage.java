@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.genre;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -15,8 +14,10 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
@@ -81,7 +82,7 @@ public class GenreDbStorage implements GenreStorage {
         params.addValue("film_ids", filmIds);
         final Map<Long, Film> filmById = films.stream().collect(Collectors.toMap(Film::getId, identity()));
         jdbc.query(GET_FILM_GENRE, params, (rs) -> {
-            final Film film  = filmById.get(rs.getLong("film_id"));
+            final Film film = filmById.get(rs.getLong("film_id"));
             film.getGenres().add(makeGenre(rs));
         });
     }
