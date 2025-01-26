@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.film;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.DbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -58,7 +59,8 @@ public class FilmServiceImpl implements FilmService {
         if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
             throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
-        Film newFilm = filmStorage.createFilm(film);
+        Film newFilm = Optional.ofNullable(filmStorage.createFilm(film))
+                .orElseThrow(() -> new DbException(String.format(ExceptionMessages.INSERT_FILM_ERROR, film)));
         genreStorage.addGenresToFilm(newFilm);
         return newFilm;
     }
@@ -80,7 +82,8 @@ public class FilmServiceImpl implements FilmService {
         if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
             throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
-        Film newFilm = filmStorage.createFilm(film);
+        Film newFilm = Optional.ofNullable(filmStorage.updateFilm(film))
+                .orElseThrow(() -> new DbException(String.format(ExceptionMessages.INSERT_FILM_ERROR, film)));
         genreStorage.addGenresToFilm(newFilm);
         return newFilm;
     }

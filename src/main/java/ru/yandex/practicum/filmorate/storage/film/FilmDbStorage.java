@@ -94,8 +94,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getAllFilms() {
         try {
-            return Optional.ofNullable(jdbc.query(GET_FILMS, filmRowMapper))
-                    .orElse(new ArrayList<>());
+            return jdbc.query(GET_FILMS, filmRowMapper);
         } catch (DataAccessException ignored) {
             throw new DbException(ExceptionMessages.SELECT_ERROR);
         }
@@ -156,8 +155,7 @@ public class FilmDbStorage implements FilmStorage {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("count", count);
         try {
-            return Optional.ofNullable(jdbc.query(GET_FILMS_POPULAR, params, filmRowMapper))
-                    .orElse(new ArrayList<>());
+            return jdbc.query(GET_FILMS_POPULAR, params, filmRowMapper);
         } catch (DataAccessException ignored) {
             throw new DbException(ExceptionMessages.SELECT_ERROR);
         }
