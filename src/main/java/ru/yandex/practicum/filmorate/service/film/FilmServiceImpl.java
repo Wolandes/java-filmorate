@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
-import ru.yandex.practicum.filmorate.exception.NotFoundChildException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -31,20 +30,24 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film getFilm(Long filmId) {
-        return Optional.ofNullable(filmStorage.getFilm(filmId))
+        Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
+        genreStorage.addGenresToFilm(film);
+        return film;
     }
 
     @Override
     public List<Film> getAllFilms() {
-        return Optional.ofNullable(filmStorage.getAllFilms())
+        List<Film> films = Optional.ofNullable(filmStorage.getAllFilms())
                 .orElse(new ArrayList<>());
+        genreStorage.addGenresToFilm(films);
+        return films;
     }
 
     @Override
     public Film createFilm(Film film) {
         if (mpaaStorage.getMpaa(film.getMpa().getId()) == null) {
-            throw new NotFoundChildException(String.format(ExceptionMessages.MPAA_NOT_FOUND_ERROR, film.getMpa().getId()));
+            throw new NotFoundException(String.format(ExceptionMessages.MPAA_NOT_FOUND_ERROR, film.getMpa().getId()));
         }
         if (film.getGenres() == null) {
             film.setGenres(new LinkedHashSet<>());
@@ -53,9 +56,11 @@ public class FilmServiceImpl implements FilmService {
                 .map(Genre::getId)
                 .toList();
         if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
-            throw new NotFoundChildException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
+            throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
-        return filmStorage.createFilm(film);
+        Film newFilm = filmStorage.createFilm(film);
+        genreStorage.addGenresToFilm(newFilm);
+        return newFilm;
     }
 
     @Override
@@ -64,7 +69,7 @@ public class FilmServiceImpl implements FilmService {
             throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, film.getId()));
         }
         if (mpaaStorage.getMpaa(film.getMpa().getId()) == null) {
-            throw new NotFoundChildException(String.format(ExceptionMessages.MPAA_NOT_FOUND_ERROR, film.getMpa().getId()));
+            throw new NotFoundException(String.format(ExceptionMessages.MPAA_NOT_FOUND_ERROR, film.getMpa().getId()));
         }
         if (film.getGenres() == null) {
             film.setGenres(new LinkedHashSet<>());
@@ -73,15 +78,19 @@ public class FilmServiceImpl implements FilmService {
                 .map(Genre::getId)
                 .toList();
         if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
-            throw new NotFoundChildException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
+            throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
-        return filmStorage.updateFilm(film);
+        Film newFilm = filmStorage.createFilm(film);
+        genreStorage.addGenresToFilm(newFilm);
+        return newFilm;
     }
 
     @Override
     public List<Film> getPopularFilms(Long count) {
-        return Optional.ofNullable(filmStorage.getPopularFilms(count))
+        List<Film> films = Optional.ofNullable(filmStorage.getPopularFilms(count))
                 .orElse(new ArrayList<>());
+        genreStorage.addGenresToFilm(films);
+        return films;
     }
 
     @Override

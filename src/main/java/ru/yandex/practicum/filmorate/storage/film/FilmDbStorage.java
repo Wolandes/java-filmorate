@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,18 +20,16 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private static final String GET_FILM = """
-            select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id,
-            m.name as mpaa_name, fg.genre_id, g.name as genre_name
+            select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name as mpaa_name
             from public.films f
             inner join public.mpaa m on m.id = f.mpaa_id
-            left outer join public.film_genre fg on fg.film_id = f.id
-            left outer join public.genre g on g.id = fg.genre_id
             where f.id = :id
             """;
     private static final String GET_FILMS = """
             select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name as mpaa_name
             from public.films f
             inner join public.mpaa m on m.id = f.mpaa_id
+            order by f.id
             """;
     private static final String GET_FILMS_POPULAR = """
             select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name as mpaa_name,
@@ -40,11 +38,6 @@ public class FilmDbStorage implements FilmStorage {
             inner join public.mpaa m on m.id = f.mpaa_id
             order by count_likes desc, f.id asc
             limit :count
-            """;
-    private static final String GET_FILM_GENRE = """
-            select fg.film_id, fg.genre_id, g.name as genre_name
-            from public.film_genre fg
-            inner join public.genre g on g.id = fg.genre_id
             """;
     private static final String INSERT_FILM = """
             insert into public.films (name, description, release_date, duration, mpaa_id)
@@ -83,16 +76,14 @@ public class FilmDbStorage implements FilmStorage {
             """;
 
     private final NamedParameterJdbcOperations jdbc;
-    private final ResultSetExtractor<Film> filmResultSetExtractor;
-    private final ResultSetExtractor<List<Film>> filmsResultSetExtractor;
-    private final ResultSetExtractor<Map<Long, LinkedHashSet<Genre>>> filmGenreResultSetExtractor;
+    private final RowMapper<Film> filmRowMapper;
 
     @Override
     public Film getFilm(Long filmId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", filmId);
         try {
-            return jdbc.query(GET_FILM, params, filmResultSetExtractor);
+            return jdbc.queryForObject(GET_FILM, params, filmRowMapper);
         } catch (EmptyResultDataAccessException ignored) {
             return null;
         } catch (DataAccessException ignored) {
@@ -103,15 +94,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getAllFilms() {
         try {
-            List<Film> films = Optional.ofNullable(jdbc.query(GET_FILMS, filmsResultSetExtractor))
+            return Optional.ofNullable(jdbc.query(GET_FILMS, filmRowMapper))
                     .orElse(new ArrayList<>());
-            Map<Long, LinkedHashSet<Genre>> filmGenre = Optional.ofNullable(
-                            jdbc.query(GET_FILM_GENRE, filmGenreResultSetExtractor))
-                    .orElse(new HashMap<>());
-            return films.stream()
-                    .peek(film -> film.setGenres(Optional.ofNullable(filmGenre.get(film.getId()))
-                            .orElse(film.getGenres())))
-                    .toList();
         } catch (DataAccessException ignored) {
             throw new DbException(ExceptionMessages.SELECT_ERROR);
         }
@@ -172,15 +156,8 @@ public class FilmDbStorage implements FilmStorage {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("count", count);
         try {
-            List<Film> films = Optional.ofNullable(jdbc.query(GET_FILMS_POPULAR, params, filmsResultSetExtractor))
+            return Optional.ofNullable(jdbc.query(GET_FILMS_POPULAR, params, filmRowMapper))
                     .orElse(new ArrayList<>());
-            Map<Long, LinkedHashSet<Genre>> filmGenre = Optional.ofNullable(
-                            jdbc.query(GET_FILM_GENRE, filmGenreResultSetExtractor))
-                    .orElse(new HashMap<>());
-            return films.stream()
-                    .peek(film -> film.setGenres(Optional.ofNullable(filmGenre.get(film.getId()))
-                            .orElse(film.getGenres())))
-                    .toList();
         } catch (DataAccessException ignored) {
             throw new DbException(ExceptionMessages.SELECT_ERROR);
         }
