@@ -89,10 +89,8 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public void addGenresToFilm(Film film) {
-        List<Long> filmIds = new ArrayList<>();
-        filmIds.add(film.getId());
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("film_ids", filmIds);
+        params.addValue("film_ids", film.getId());
         jdbc.query(GET_FILM_GENRE, params, (rs) -> {
             film.getGenres().add(makeGenre(rs));
         });
