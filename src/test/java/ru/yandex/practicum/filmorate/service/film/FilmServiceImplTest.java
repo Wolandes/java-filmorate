@@ -8,9 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
-import ru.yandex.practicum.filmorate.exctractor.FilmGenreResultSetExtractor;
-import ru.yandex.practicum.filmorate.exctractor.FilmResultSetExtractor;
-import ru.yandex.practicum.filmorate.exctractor.FilmsResultSetExtractor;
+import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.mapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.mapper.MpaaRowMapper;
 import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
@@ -35,8 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({FilmServiceImpl.class})
-@ContextConfiguration(classes = {FilmDbStorage.class, FilmResultSetExtractor.class,
-        FilmsResultSetExtractor.class, FilmGenreResultSetExtractor.class,
+@ContextConfiguration(classes = {FilmDbStorage.class, FilmRowMapper.class,
         UserDbStorage.class, UserRowMapper.class, MpaaDbStorage.class, MpaaRowMapper.class,
         GenreDbStorage.class, GenreRowMapper.class})
 public class FilmServiceImplTest {
