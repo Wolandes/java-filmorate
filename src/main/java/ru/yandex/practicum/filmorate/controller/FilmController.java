@@ -20,6 +20,15 @@ import java.util.List;
 public class FilmController {
     private final FilmService filmService;
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Film getFilmsWithGenre(@PathVariable("id") Long filmId) {
+        log.info("Вызван метод GET /films/{}", filmId);
+        Film film = filmService.getFilm(filmId);
+        log.info("Метод GET /films/{} вернул ответ {}", filmId, film);
+        return film;
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getAllFilms() {

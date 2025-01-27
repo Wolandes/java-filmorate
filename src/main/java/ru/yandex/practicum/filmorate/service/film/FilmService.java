@@ -5,6 +5,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 public interface FilmService {
+    Film getFilm(Long filmId);
+
     List<Film> getAllFilms();
 
     Film createFilm(Film film);

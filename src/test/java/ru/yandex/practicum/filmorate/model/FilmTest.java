@@ -39,6 +39,7 @@ public class FilmTest {
                 .name("Test")
                 .releaseDate(LocalDate.now())
                 .duration(10)
+                .mpa(new Mpaa(1L, "G"))
                 .build();
 
         List<ConstraintViolation<Film>> violations = new ArrayList<>(validator.validate(film, ValidatorGroups.Update.class));
@@ -56,6 +57,7 @@ public class FilmTest {
                 .name(null)
                 .releaseDate(LocalDate.now())
                 .duration(10)
+                .mpa(new Mpaa(1L, "G"))
                 .build();
 
         List<ConstraintViolation<Film>> violations = new ArrayList<>(validator.validate(film, ValidatorGroups.Create.class));
@@ -78,6 +80,7 @@ public class FilmTest {
                 .description(".".repeat(201))
                 .releaseDate(LocalDate.now())
                 .duration(10)
+                .mpa(new Mpaa(1L, "G"))
                 .build();
 
         List<ConstraintViolation<Film>> violations = new ArrayList<>(validator.validate(film, ValidatorGroups.Create.class));
@@ -94,6 +97,7 @@ public class FilmTest {
         Film film = Film.builder()
                 .name("Test")
                 .duration(10)
+                .mpa(new Mpaa(1L, "G"))
                 .build();
 
         List<ConstraintViolation<Film>> violations = new ArrayList<>(validator.validate(film, ValidatorGroups.Create.class));
@@ -121,6 +125,7 @@ public class FilmTest {
                 .name("Test")
                 .releaseDate(LocalDate.now())
                 .duration(-1)
+                .mpa(new Mpaa(1L, "G"))
                 .build();
 
         List<ConstraintViolation<Film>> violations = new ArrayList<>(validator.validate(film, ValidatorGroups.Create.class));
@@ -128,6 +133,28 @@ public class FilmTest {
         assertEquals("Продолжительность фильма должна быть положительным числом", violations.getFirst().getMessage());
 
         violations = new ArrayList<>(validator.validate(film.toBuilder().duration(1).build(), ValidatorGroups.Create.class));
+        assertTrue(violations.isEmpty(), "Валидация не пройдена");
+    }
+
+    @Test
+    @DisplayName("Возрастной рейтинг")
+    public void shouldMpa() {
+        Film film = Film.builder()
+                .name("Test")
+                .releaseDate(LocalDate.now())
+                .duration(10)
+                .mpa(null)
+                .build();
+
+        List<ConstraintViolation<Film>> violations = new ArrayList<>(validator.validate(film, ValidatorGroups.Create.class));
+        assertFalse(violations.isEmpty(), "Валидация пройдена");
+        assertEquals("Возрастной рейтинг не может быть пустым", violations.getFirst().getMessage());
+
+        violations = new ArrayList<>(validator.validate(
+                film.toBuilder()
+                        .mpa(new Mpaa(1L, "G"))
+                        .build(),
+                ValidatorGroups.Create.class));
         assertTrue(violations.isEmpty(), "Валидация не пройдена");
     }
 }
