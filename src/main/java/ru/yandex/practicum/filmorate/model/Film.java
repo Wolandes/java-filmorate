@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.validation.DateAfter;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Film.
@@ -40,5 +40,5 @@ public class Film {
     @NotNull(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class},
             message = "Возрастной рейтинг не может быть пустым")
     private Mpaa mpa;
-    private LinkedHashSet<Genre> genres;
+    private Set<Genre> genres;
 }
