@@ -1,15 +1,17 @@
 package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.SortBy;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpaa.MpaaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -22,18 +24,18 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
-    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
-    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
     private final MpaaStorage mpaaStorage;
     private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
 
     @Override
     public Film getFilm(Long filmId) {
         Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
         genreStorage.addGenresToFilm(film);
+        directorStorage.addDirectorsToFilm(film);
         return film;
     }
 
@@ -42,6 +44,7 @@ public class FilmServiceImpl implements FilmService {
         List<Film> films = Optional.ofNullable(filmStorage.getAllFilms())
                 .orElse(new ArrayList<>());
         genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
         return films;
     }
 
@@ -59,9 +62,19 @@ public class FilmServiceImpl implements FilmService {
         if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
             throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
+        if (film.getDirectors() == null) {
+            film.setDirectors(new LinkedHashSet<>());
+        }
+        List<Long> directorIds = film.getDirectors().stream()
+                .map(Director::getId)
+                .toList();
+        if (directorStorage.getDirectors(directorIds).size() != directorIds.size()) {
+            throw new NotFoundException(String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_FROM_LIST_ERROR, directorIds));
+        }
         Film newFilm = Optional.ofNullable(filmStorage.createFilm(film))
                 .orElseThrow(() -> new DbException(String.format(ExceptionMessages.INSERT_FILM_ERROR, film)));
         genreStorage.addGenresToFilm(newFilm);
+        directorStorage.addDirectorsToFilm(newFilm);
         return newFilm;
     }
 
@@ -82,9 +95,19 @@ public class FilmServiceImpl implements FilmService {
         if (genreStorage.getGenres(genreIds).size() != genreIds.size()) {
             throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_FROM_LIST_ERROR, genreIds));
         }
+        if (film.getDirectors() == null) {
+            film.setDirectors(new LinkedHashSet<>());
+        }
+        List<Long> directorIds = film.getDirectors().stream()
+                .map(Director::getId)
+                .toList();
+        if (directorStorage.getDirectors(directorIds).size() != directorIds.size()) {
+            throw new NotFoundException(String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_FROM_LIST_ERROR, directorIds));
+        }
         Film newFilm = Optional.ofNullable(filmStorage.updateFilm(film))
                 .orElseThrow(() -> new DbException(String.format(ExceptionMessages.INSERT_FILM_ERROR, film)));
         genreStorage.addGenresToFilm(newFilm);
+        directorStorage.addDirectorsToFilm(newFilm);
         return newFilm;
     }
 
@@ -93,6 +116,7 @@ public class FilmServiceImpl implements FilmService {
         List<Film> films = Optional.ofNullable(filmStorage.getPopularFilms(count))
                 .orElse(new ArrayList<>());
         genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
         return films;
     }
 
@@ -112,5 +136,18 @@ public class FilmServiceImpl implements FilmService {
         User user = Optional.ofNullable(userStorage.getUser(userId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
         filmStorage.removeLike(film, user);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) {
+        SortBy sort = SortBy.from(sortBy);
+        Director director = Optional.ofNullable(directorStorage.getDirector(directorId))
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, directorId)));
+        List<Film> films = Optional.ofNullable(filmStorage.getFilmsByDirectorId(director, sort))
+                .orElse(new ArrayList<>());
+        genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
+        return films;
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.DbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
@@ -74,6 +75,29 @@ public class FilmDbStorage implements FilmStorage {
             where film_id = :film_id
             and user_id = :user_id
             """;
+    private static final String INSERT_FILM_DIRECTOR = """
+            insert into public.film_director (film_id, director_id)
+            select :film_id, d.id
+            from public.directors d
+            left outer join public.film_director fd on fd.film_id = :film_id and fd.director_id = d.id
+            where d.id in (:director_ids)
+            and fd.director_id is null
+            """;
+    private static final String DELETE_FILM_DIRECTOR = """
+            delete from public.film_director
+            where film_id = :film_id
+            and director_id not in (:director_ids)
+            """;
+    private static final String GET_FILMS_BY_DIRECTOR = """
+            select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name as mpaa_name,
+            (select count(*) from public.likes l where l.film_id = f.id) as count_likes
+            from public.films f
+            inner join public.mpaa m on m.id = f.mpaa_id
+            where exists(select fd.director_id
+            from public.film_director fd
+            where fd.film_id = f.id and fd.director_id = :director_id)
+            %s
+            """;
 
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<Film> filmRowMapper;
@@ -119,6 +143,13 @@ public class FilmDbStorage implements FilmStorage {
                             .map(Genre::getId)
                             .toList());
             jdbc.update(INSERT_FILM_GENRE, paramsFilmGenre);
+            MapSqlParameterSource paramsFilmDirector = new MapSqlParameterSource();
+            paramsFilmDirector.addValue("film_id", id);
+            paramsFilmDirector.addValue("director_ids",
+                    film.getDirectors().stream()
+                            .map(Director::getId)
+                            .toList());
+            jdbc.update(INSERT_FILM_DIRECTOR, paramsFilmDirector);
             return getFilm(Long.valueOf(id));
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.INSERT_FILM_ERROR, film));
@@ -144,6 +175,14 @@ public class FilmDbStorage implements FilmStorage {
                             .toList());
             jdbc.update(DELETE_FILM_GENRE, paramsFilmGenre);
             jdbc.update(INSERT_FILM_GENRE, paramsFilmGenre);
+            MapSqlParameterSource paramsFilmDirector = new MapSqlParameterSource();
+            paramsFilmDirector.addValue("film_id", film.getId());
+            paramsFilmDirector.addValue("director_ids",
+                    film.getDirectors().stream()
+                            .map(Director::getId)
+                            .toList());
+            jdbc.update(DELETE_FILM_DIRECTOR, paramsFilmDirector);
+            jdbc.update(INSERT_FILM_DIRECTOR, paramsFilmDirector);
             return getFilm(film.getId());
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.UPDATE_FILM_ERROR, film.getId()));
@@ -183,5 +222,23 @@ public class FilmDbStorage implements FilmStorage {
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.DELETE_LIKE_ERROR, user.getId(), film.getId()));
         }
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorId(Director director, SortBy sortBy) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("director_id", director.getId());
+        try {
+            return jdbc.query(String.format(GET_FILMS_BY_DIRECTOR, getOrderByToFilmsByDirectorId(sortBy)), params, filmRowMapper);
+        } catch (DataAccessException ignored) {
+            throw new DbException(String.format(ExceptionMessages.SELECT_ERROR));
+        }
+    }
+
+    static String getOrderByToFilmsByDirectorId(SortBy sortBy) {
+        return switch (sortBy) {
+            case YEAR -> "order by f.release_date";
+            case LIKES -> "order by count_likes desc";
+        };
     }
 }
