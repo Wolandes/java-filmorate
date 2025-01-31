@@ -20,4 +20,6 @@ public interface FilmService {
     void removeLike(Long filmId, Long userId);
 
     List<Film> getFilmsByDirectorId(Long directorId, String sortBy);
+
+    List<Film> searchFilms(String query, String by);
 }

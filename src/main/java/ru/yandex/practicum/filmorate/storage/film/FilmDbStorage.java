@@ -16,6 +16,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -89,6 +91,13 @@ public class FilmDbStorage implements FilmStorage {
             from public.film_director fd
             where fd.film_id = f.id and fd.director_id = :director_id)
             %s
+            """;
+    private static final String SEARCH_FILMS = """
+            select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name as mpaa_name,
+            (select count(*) from public.likes l where l.film_id = f.id) as count_likes
+            from public.films f
+            inner join public.mpaa m on m.id = f.mpaa_id
+            where %s
             """;
 
     private final NamedParameterJdbcOperations jdbc;
@@ -255,5 +264,32 @@ public class FilmDbStorage implements FilmStorage {
             case YEAR -> "order by f.release_date";
             case LIKES -> "order by count_likes desc";
         };
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, Set<SearchBy> by) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("query", query);
+        try {
+            return jdbc.query(String.format(SEARCH_FILMS, getWhereToSearchFilms(by)), params, filmRowMapper);
+        } catch (DataAccessException ignored) {
+            throw new DbException(String.format(ExceptionMessages.SELECT_ERROR));
+        }
+    }
+
+    static String getWhereToSearchFilms(Set<SearchBy> by) {
+        return by.stream()
+                .map(b -> {
+                    return switch (b) {
+                        case DIRECTOR -> """
+                                exists(select fd.director_id
+                                from public.film_director fd
+                                inner join public.directors d on d.id = fd.director_id
+                                where fd.film_id = f.id and d.name like '%' || :query || '%')
+                                """;
+                        case TITLE -> "f.name like '%' || :query || '%'";
+                    };
+                })
+                .collect(Collectors.joining(" or "));
     }
 }
