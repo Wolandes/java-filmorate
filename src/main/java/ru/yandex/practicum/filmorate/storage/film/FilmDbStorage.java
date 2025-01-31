@@ -10,11 +10,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.DbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
+import ru.yandex.practicum.filmorate.mapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Repository
@@ -31,14 +33,6 @@ public class FilmDbStorage implements FilmStorage {
             from public.films f
             inner join public.mpaa m on m.id = f.mpaa_id
             order by f.id
-            """;
-    private static final String GET_FILMS_POPULAR = """
-            select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name as mpaa_name,
-            (select count(*) from public.likes l where l.film_id = f.id) as count_likes
-            from public.films f
-            inner join public.mpaa m on m.id = f.mpaa_id
-            order by count_likes desc, f.id asc
-            limit :count
             """;
     private static final String INSERT_FILM = """
             insert into public.films (name, description, release_date, duration, mpaa_id)
@@ -190,14 +184,40 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(Long count) {
+    public List<Film> getPopularFilms(Long count, Long genreId, Integer year) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("count", count);
-        try {
-            return jdbc.query(GET_FILMS_POPULAR, params, filmRowMapper);
-        } catch (DataAccessException ignored) {
-            throw new DbException(ExceptionMessages.SELECT_ERROR);
+        StringBuilder sql = new StringBuilder("""
+                SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name AS mpaa_name,
+                (SELECT COUNT(*) FROM public.likes l WHERE l.film_id = f.id) AS count_likes
+                FROM public.films f
+                INNER JOIN public.mpaa m ON m.id = f.mpaa_id
+                LEFT JOIN public.film_genre fg ON f.id = fg.film_id
+                LEFT JOIN public.genre g ON fg.genre_id = g.id
+                """);
+        String genreSql = "SELECT g.id, g.name FROM genre g JOIN film_genre fg ON g.id = fg.genre_id WHERE fg.film_id = :filmId";
+
+        if (genreId != null) {
+            sql.append("WHERE fg.genre_id = :genreId ");
+            params.addValue("genreId", genreId);
         }
+
+        if (year != null) {
+            if (genreId != null) {
+                sql.append("AND EXTRACT(YEAR FROM f.release_date) = :year ");
+            } else {
+                sql.append("WHERE EXTRACT(YEAR FROM f.release_date) = :year ");
+            }
+            params.addValue("year", year);
+        }
+        sql.append("ORDER BY count_likes DESC, f.id ASC ");
+        sql.append("LIMIT :count ");
+        params.addValue("count", count);
+        List<Film> films = jdbc.query(sql.toString(), params, filmRowMapper);
+        for (Film film : films) {
+            List<Genre> genres = jdbc.query(genreSql, new MapSqlParameterSource("filmId", film.getId()), new GenreRowMapper());
+            film.setGenres(new LinkedHashSet<>(genres));
+        }
+        return films;
     }
 
     @Override

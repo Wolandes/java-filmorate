@@ -139,7 +139,7 @@ public class FilmServiceImplTest {
         testFilm.add(getTestFilm());
         filmService.addLike(3L, 1L);
         filmService.addLike(3L, 2L);
-        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(2L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(2L,2L,2024));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -153,7 +153,7 @@ public class FilmServiceImplTest {
     public void shouldAddLike() {
         List<Film> testFilm = new ArrayList<>();
         testFilm.add(getTestFilm());
-        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L,2L,2024));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -165,7 +165,7 @@ public class FilmServiceImplTest {
         testFilm.add(filmService.getFilm(3L));
         filmService.addLike(3L, 1L);
         filmService.addLike(3L, 2L);
-        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L,2L,2024));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -181,7 +181,7 @@ public class FilmServiceImplTest {
         testFilm.add(filmService.getFilm(3L));
         filmService.addLike(3L, 1L);
         filmService.addLike(3L, 2L);
-        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L,1L,2024));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -192,7 +192,7 @@ public class FilmServiceImplTest {
         testFilm.clear();
         testFilm.add(getTestFilm());
         filmService.removeLike(3L, 1L);
-        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L,2L,2024));
 
         assertThat(filmOptional)
                 .isPresent()

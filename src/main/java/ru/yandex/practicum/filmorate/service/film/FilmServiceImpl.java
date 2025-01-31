@@ -112,12 +112,8 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopularFilms(Long count) {
-        List<Film> films = Optional.ofNullable(filmStorage.getPopularFilms(count))
-                .orElse(new ArrayList<>());
-        genreStorage.addGenresToFilm(films);
-        directorStorage.addDirectorsToFilm(films);
-        return films;
+    public List<Film> getPopularFilms(Long count, Long genreId, Integer year) {
+        return filmStorage.getPopularFilms(count, genreId, year);
     }
 
     @Override
