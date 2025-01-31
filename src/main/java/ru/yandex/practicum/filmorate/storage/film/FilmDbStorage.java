@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.DbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
+import ru.yandex.practicum.filmorate.mapper.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.mapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -193,8 +194,11 @@ public class FilmDbStorage implements FilmStorage {
                 INNER JOIN public.mpaa m ON m.id = f.mpaa_id
                 LEFT JOIN public.film_genre fg ON f.id = fg.film_id
                 LEFT JOIN public.genre g ON fg.genre_id = g.id
+                LEFT JOIN public.film_director fd ON f.id = fd.film_id
+                LEFT JOIN public.directors d ON fd.director_id = d.id
                 """);
         String genreSql = "SELECT g.id, g.name FROM genre g JOIN film_genre fg ON g.id = fg.genre_id WHERE fg.film_id = :filmId";
+        String directorSql = "SELECT d.id, d.name FROM directors d JOIN film_director fd ON d.id = fd.director_id WHERE fd.film_id = :filmId";
 
         if (genreId != null) {
             sql.append("WHERE fg.genre_id = :genreId ");
@@ -216,6 +220,8 @@ public class FilmDbStorage implements FilmStorage {
         for (Film film : films) {
             List<Genre> genres = jdbc.query(genreSql, new MapSqlParameterSource("filmId", film.getId()), new GenreRowMapper());
             film.setGenres(new LinkedHashSet<>(genres));
+            List<Director> directors = jdbc.query(directorSql, new MapSqlParameterSource("filmId", film.getId()), new DirectorRowMapper());
+            film.setDirectors(new LinkedHashSet<>(directors));
         }
         return films;
     }
