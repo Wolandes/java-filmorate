@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
@@ -113,7 +115,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getPopularFilms(Long count, Long genreId, Integer year) {
-        return filmStorage.getPopularFilms(count, genreId, year);
+        List<Film> films = filmStorage.getPopularFilms(count, genreId, year);
+        log.info("Метод getPopularFilms /films вернул ответ {}", films);
+        return films;
     }
 
     @Override
