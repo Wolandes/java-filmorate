@@ -16,8 +16,7 @@ import java.util.List;
 public class GenreController {
     private final GenreService genreService;
 
-    @GetMapping
-    @RequestMapping("/{id}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Genre getGenre(@PathVariable("id") Long genreId) {
         log.info("Вызван метод GET /genres/{}", genreId);

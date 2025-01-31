@@ -84,4 +84,14 @@ public class FilmController {
         filmService.removeLike(filmId, userId);
         log.info("Метод DELETE /films/{id}/like/{userId} успешно выполнен");
     }
+
+    @GetMapping("/director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getFilmsByDirectorId(@PathVariable("directorId") Long directorId,
+                                           @RequestParam("sortBy") String sortBy) {
+        log.info("Вызван метод GET /director/{} с sortBy = {}", directorId, sortBy);
+        List<Film> films = filmService.getFilmsByDirectorId(directorId, sortBy);
+        log.info("Метод GET /director/{} вернул ответ {}", directorId, films);
+        return films;
+    }
 }

@@ -20,6 +20,7 @@ public class FilmRowMapper implements RowMapper<Film> {
                 rs.getInt("duration"),
                 new Mpaa(rs.getLong("mpaa_id"),
                         rs.getString("mpaa_name")),
+                new LinkedHashSet<>(),
                 new LinkedHashSet<>());
     }
 }
