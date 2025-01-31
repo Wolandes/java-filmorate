@@ -116,6 +116,8 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> getPopularFilms(Long count, Long genreId, Integer year) {
         List<Film> films = filmStorage.getPopularFilms(count, genreId, year);
+        genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
         log.info("Метод getPopularFilms /films вернул ответ {}", films);
         return films;
     }

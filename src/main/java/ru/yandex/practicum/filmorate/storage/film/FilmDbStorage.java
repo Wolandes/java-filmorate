@@ -197,8 +197,6 @@ public class FilmDbStorage implements FilmStorage {
                 LEFT JOIN public.film_director fd ON f.id = fd.film_id
                 LEFT JOIN public.directors d ON fd.director_id = d.id
                 """);
-        String genreSql = "SELECT g.id, g.name FROM genre g JOIN film_genre fg ON g.id = fg.genre_id WHERE fg.film_id = :filmId";
-        String directorSql = "SELECT d.id, d.name FROM directors d JOIN film_director fd ON d.id = fd.director_id WHERE fd.film_id = :filmId";
 
         if (genreId != null) {
             sql.append("WHERE fg.genre_id = :genreId ");
@@ -217,12 +215,6 @@ public class FilmDbStorage implements FilmStorage {
         sql.append("LIMIT :count ");
         params.addValue("count", count);
         List<Film> films = jdbc.query(sql.toString(), params, filmRowMapper);
-        for (Film film : films) {
-            List<Genre> genres = jdbc.query(genreSql, new MapSqlParameterSource("filmId", film.getId()), new GenreRowMapper());
-            film.setGenres(new LinkedHashSet<>(genres));
-            List<Director> directors = jdbc.query(directorSql, new MapSqlParameterSource("filmId", film.getId()), new DirectorRowMapper());
-            film.setDirectors(new LinkedHashSet<>(directors));
-        }
         return films;
     }
 
