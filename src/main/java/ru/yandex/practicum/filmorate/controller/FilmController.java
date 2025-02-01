@@ -60,11 +60,11 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") Long count) {
-        log.info("Вызван метод GET /films/popular с count = {}", count);
-        List<Film> popularFilms = filmService.getPopularFilms(count);
-        log.info("Метод GET /films/popular вернул ответ {}", popularFilms);
-        return popularFilms;
+    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") Long count,
+                                      @RequestParam(value = "genreId", required = false) Long genreId,
+                                      @RequestParam(value = "year", required = false) Integer year) {
+        log.info("Получение популярных фильмов: count={}, genreId={}, year={}", count, genreId, year);
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
     @PutMapping("/{id}/like/{userId}")
