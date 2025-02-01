@@ -20,6 +20,15 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUser(@PathVariable("id") Long userId) {
+        log.info("Вызван метод GET /users/{}", userId);
+        User user = userService.getUser(userId);
+        log.info("Метод GET /users/{} вернул ответ {}", userId, user);
+        return user;
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> getAllUsers() {
@@ -47,6 +56,14 @@ public class UserController {
         User newUser = userService.updateUser(user);
         log.info("Метод PUT /users вернул ответ {}", newUser);
         return newUser;
+    }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFilm(@PathVariable("userId") Long userId) {
+        log.info("Вызван метод DELETE /users/{}", userId);
+        userService.removeUser(userId);
+        log.info("Метод DELETE /users/{} успешно выполнен", userId);
     }
 
     @GetMapping("/{id}/friends")

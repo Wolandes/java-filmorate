@@ -99,6 +99,16 @@ public class FilmDbStorage implements FilmStorage {
             inner join public.mpaa m on m.id = f.mpaa_id
             where %s
             """;
+    private static final String DELETE_FILM = """
+            delete from public.likes
+            where film_id = :id;
+            delete from public.film_genre
+            where film_id = :id;
+            delete from public.film_director
+            where film_id = :id;
+            delete from public.films
+            where id = :id;
+            """;
 
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<Film> filmRowMapper;
@@ -187,6 +197,17 @@ public class FilmDbStorage implements FilmStorage {
             return getFilm(film.getId());
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.UPDATE_FILM_ERROR, film.getId()));
+        }
+    }
+
+    @Override
+    public void removeFilm(Film film) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", film.getId());
+        try {
+            jdbc.update(DELETE_FILM, params);
+        } catch (DataAccessException ignored) {
+            throw new DbException(ExceptionMessages.DELETE_FILM_ERROR);
         }
     }
 

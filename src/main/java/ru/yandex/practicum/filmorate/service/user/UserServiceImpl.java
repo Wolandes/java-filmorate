@@ -18,6 +18,12 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
+    public User getUser(Long userId) {
+        return Optional.ofNullable(userStorage.getUser(userId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return Optional.ofNullable(userStorage.getAllUsers())
                 .orElse(new ArrayList<>());
@@ -34,6 +40,13 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, user.getId()));
         }
         return userStorage.updateUser(user);
+    }
+
+    @Override
+    public void removeUser(Long userId) {
+        User user = Optional.ofNullable(userStorage.getUser(userId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+        userStorage.removeUser(user);
     }
 
     @Override
