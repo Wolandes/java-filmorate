@@ -9,7 +9,8 @@ values (2, 3);
 insert into public.films (name, description, release_date, duration, mpaa_id)
 values ('test', 'test description', '2000-01-01', 100, 1),
 ('test2', 'test description2', '2001-01-01', 110, 2),
-('test3', 'test description3', '2002-01-01', 120, 3);
+('test3', 'test description3', '2002-01-01', 120, 3),
+('test film director3', 'test film director description3', '2002-01-01', 120, 4);
 
 insert into public.film_genre (film_id, genre_id)
 values (1, 2),
@@ -17,7 +18,8 @@ values (1, 2),
 (2, 2),
 (3, 1),
 (3, 2),
-(3, 3);
+(3, 3),
+(4, 4);
 
 insert into public.likes (film_id, user_id)
 values(1, 3);

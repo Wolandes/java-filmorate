@@ -94,4 +94,14 @@ public class FilmController {
         log.info("Метод GET /director/{} вернул ответ {}", directorId, films);
         return films;
     }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getSearchFilms(@RequestParam("query") String query,
+                                     @RequestParam("by") String by) {
+        log.info("Вызван метод GET /search с query = {} и by = {}", query, by);
+        List<Film> films = filmService.searchFilms(query, by);
+        log.info("Метод GET /search вернул ответ {}", films);
+        return films;
+    }
 }

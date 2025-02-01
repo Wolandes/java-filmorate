@@ -74,6 +74,7 @@ public class FilmServiceImplTest {
         testFilm.add(getTestFilm());
         testFilm.add(filmService.getFilm(2L));
         testFilm.add(filmService.getFilm(3L));
+        testFilm.add(filmService.getFilm(4L));
         Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getAllFilms());
 
         assertThat(filmOptional)
@@ -227,5 +228,64 @@ public class FilmServiceImplTest {
                 .get()
                 .usingRecursiveComparison()
                 .isEqualTo(testFilm);
+    }
+
+    @Test
+    @DisplayName("Поиск фильмов")
+    public void shouldSearchFilms() {
+        List<Film> testFilm = new ArrayList<>();
+        testFilm.add(filmService.getFilm(2L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.searchFilms("2", "title"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("4", "director"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("3", "title"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("2", "director"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
+
+        testFilm.clear();
+        testFilm.add(filmService.getFilm(3L));
+        testFilm.add(filmService.getFilm(4L));
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("director3", "director,title"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+
+        testFilm.remove(0);
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
+
     }
 }

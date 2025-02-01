@@ -12,15 +12,14 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.SearchBy;
 import ru.yandex.practicum.filmorate.storage.film.SortBy;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpaa.MpaaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -148,6 +147,20 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, directorId)));
         List<Film> films = Optional.ofNullable(filmStorage.getFilmsByDirectorId(director, sort))
+                .orElse(new ArrayList<>());
+        genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
+        return films;
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        Set<SearchBy> byList = Arrays.stream(by.split(","))
+                .filter(b -> !b.isBlank())
+                .map(b -> b.toLowerCase().trim())
+                .map(SearchBy::from)
+                .collect(Collectors.toSet());
+        List<Film> films = Optional.ofNullable(filmStorage.searchFilms(query, byList))
                 .orElse(new ArrayList<>());
         genreStorage.addGenresToFilm(films);
         directorStorage.addDirectorsToFilm(films);
