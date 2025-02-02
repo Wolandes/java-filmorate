@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Film> findRecommendations(Long userId){
+    public List<Film> findRecommendations(Long userId) {
         List<Film> filmList = filmStorage.findRecommendations(userId);
         genreStorage.addGenresToFilm(filmList);
         directorStorage.addDirectorsToFilm(filmList);

@@ -107,7 +107,10 @@ public class UserController {
 
     @GetMapping("{id}/recommendations")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> getRecommendations(@PathVariable Long id){
-        return userService.findRecommendations(id);
+    public List<Film> getRecommendations(@PathVariable Long id) {
+        log.info("Вызван метод GET /{id}/recommendations c id = {}", id);
+        List<Film> films = userService.findRecommendations(id);
+        log.info("Метод GET /{id}/recommendations c id = {} вернул ответ {}", id, films);
+        return films;
     }
 }
