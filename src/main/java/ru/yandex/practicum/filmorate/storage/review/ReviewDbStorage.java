@@ -51,7 +51,7 @@ public class ReviewDbStorage implements ReviewStorage {
             set content = :content,
             user_id = :user_id,
             film_id = :film_id,
-            is_positive = :is_positive 
+            is_positive = :is_positive
             where id = :id
             """;
     private static final String GET_USEFUL = """
