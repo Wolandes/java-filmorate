@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
@@ -102,5 +103,11 @@ public class UserController {
         log.info("Вызван метод DELETE /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
         userService.removeFriend(userId, friendId);
         log.info("Метод DELETE /{id}/friends/{friendId} успешно выполнен");
+    }
+
+    @GetMapping("{id}/recommendations")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getRecommendations(@PathVariable Long id){
+        return userService.findRecommendations(id);
     }
 }

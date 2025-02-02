@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,10 +16,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
@@ -109,6 +113,27 @@ public class FilmDbStorage implements FilmStorage {
             delete from public.films
             where id = :id;
             """;
+    private static final String LIKED_FILMS = """
+            SELECT film_id
+            FROM likes
+            WHERE user_id = :userId;
+            """;
+    private static final String SIMILAR_USER = """
+            SELECT l.user_id
+            FROM likes l
+            WHERE l.film_id IN (:likedFilms) AND l.user_id <> :userId
+            GROUP BY l.user_id
+            ORDER BY COUNT(l.film_id) DESC
+            LIMIT 1
+            """;
+    private static final String RECOMMENDED_FILMS = """
+            SELECT f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name AS mpaa_name
+            FROM films f
+            INNER JOIN public.mpaa m ON m.id = f.mpaa_id
+            JOIN likes l ON f.id = l.film_id
+            WHERE l.user_id = :similarUser AND f.id NOT IN (:likedFilms)
+            """;
+
 
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<Film> filmRowMapper;
@@ -296,6 +321,33 @@ public class FilmDbStorage implements FilmStorage {
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.SELECT_ERROR));
         }
+    }
+
+    @Override
+    public List<Film> findRecommendations(Long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        List<Long> likedFilms = jdbc.query(LIKED_FILMS, params, (rs, rowNum) -> rs.getLong("film_id"));
+
+        if (likedFilms.isEmpty()) {
+            log.info("Список понравишься фильмов пуст");
+            return List.of();
+        }
+        params.addValue("likedFilms", likedFilms);
+        Long similarUser = jdbc.query(SIMILAR_USER, params, (rs, rowNow) -> rs.getLong("user_Id"))
+                .stream()
+                .findFirst()
+                .orElse(null);
+        if (similarUser == null) {
+            log.info("Похожих пользователей нет, рекомендации нет");
+            return List.of();
+        }
+        params.addValue("similarUser", similarUser);
+        Set<Film> films = new HashSet<>(jdbc.query(RECOMMENDED_FILMS, params, filmRowMapper));
+        if (films.isEmpty()) {
+            log.info("У похожего пользователя нет новых фильмов для рекомендации");
+        }
+        return new ArrayList<>(films);
     }
 
     static String getWhereToSearchFilms(Set<SearchBy> by) {

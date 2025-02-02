@@ -5,7 +5,11 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -16,6 +20,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
 
     @Override
     public User getUser(Long userId) {
@@ -84,5 +91,13 @@ public class UserServiceImpl implements UserService {
         User friend = Optional.ofNullable(userStorage.getUser(friendId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
         userStorage.removeFriend(user, friend);
+    }
+
+    @Override
+    public List<Film> findRecommendations(Long userId){
+        List<Film> filmList = filmStorage.findRecommendations(userId);
+        genreStorage.addGenresToFilm(filmList);
+        directorStorage.addDirectorsToFilm(filmList);
+        return filmList;
     }
 }
