@@ -20,11 +20,9 @@ public class Review {
             message = "Текст отзыва не должен быть пустым")
     private String content;
 
-    //private User user;
     @NotNull(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class}, message = "id пользователя должен быть указан")
     private Long userId;
 
-    //private Film film;
     @NotNull(groups = {ValidatorGroups.Create.class, ValidatorGroups.Update.class}, message = "id фильма должен быть указан")
     private Long filmId;
 

@@ -100,9 +100,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 while (rs.next()) {
                     review.setReviewId(rs.getLong("id"));
                     review.setContent(rs.getString("content"));
-                    //review.setUser(userStorage.getUser(rs.getLong("user_id")));
                     review.setUserId(rs.getLong("user_id"));
-                    //review.setFilm(filmStorage.getFilm(rs.getLong("film_id")));
                     review.setFilmId(rs.getLong("film_id"));
                     review.setIsPositive(rs.getBoolean("is_positive"));
                     review.setUseful(rs.getInt("useful"));
@@ -130,9 +128,7 @@ public class ReviewDbStorage implements ReviewStorage {
                     Review review = new Review();
                     review.setReviewId(rs.getLong("id"));
                     review.setContent(rs.getString("content"));
-                    //review.setUser(userStorage.getUser(rs.getLong("user_id")));
                     review.setUserId(rs.getLong("user_id"));
-                    //review.setFilm(filmStorage.getFilm(rs.getLong("film_id")));
                     review.setFilmId(rs.getLong("film_id"));
                     review.setIsPositive(rs.getBoolean("is_positive"));
                     review.setUseful(rs.getInt("useful"));
@@ -188,9 +184,7 @@ public class ReviewDbStorage implements ReviewStorage {
                     Review review = new Review();
                     review.setReviewId(rs.getLong("id"));
                     review.setContent(rs.getString("content"));
-                    //review.setUser(userStorage.getUser(rs.getLong("user_id")));
                     review.setUserId(rs.getLong("user_id"));
-                    //review.setFilm(filmStorage.getFilm(rs.getLong("film_id")));
                     review.setFilmId(rs.getLong("film_id"));
                     review.setIsPositive(rs.getBoolean("is_positive"));
                     review.setUseful(rs.getInt("useful"));
