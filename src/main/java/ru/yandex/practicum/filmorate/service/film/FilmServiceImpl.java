@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
 import ru.yandex.practicum.filmorate.model.event.EventType;
-import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.SearchBy;
@@ -33,7 +33,7 @@ public class FilmServiceImpl implements FilmService {
     private final MpaaStorage mpaaStorage;
     private final GenreStorage genreStorage;
     private final DirectorStorage directorStorage;
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
 
     @Override
     public Film getFilm(Long filmId) {

@@ -14,7 +14,9 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpaa;
+import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.event.EventDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpaa.MpaaDbStorage;
@@ -30,10 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmServiceImpl.class})
+@Import({FilmServiceImpl.class, EventServiceImpl.class})
 @ContextConfiguration(classes = {FilmDbStorage.class, FilmRowMapper.class,
         UserDbStorage.class, UserRowMapper.class, MpaaDbStorage.class, MpaaRowMapper.class,
-        GenreDbStorage.class, GenreRowMapper.class, DirectorDbStorage.class, DirectorRowMapper.class})
+        GenreDbStorage.class, GenreRowMapper.class, DirectorDbStorage.class, DirectorRowMapper.class,
+        EventDbStorage.class, EventRowMapper.class})
 public class FilmServiceImplTest {
     private final FilmServiceImpl filmService;
 

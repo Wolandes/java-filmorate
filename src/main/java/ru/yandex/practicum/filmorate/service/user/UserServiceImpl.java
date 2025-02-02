@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
 import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -20,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
 
     @Override
     public User getUser(Long userId) {

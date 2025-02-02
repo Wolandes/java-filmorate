@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
 import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewDbStorage;
@@ -23,7 +24,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewDbStorage reviewStorage;
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
 
     @Override
     public Review getReview(Long reviewId) {

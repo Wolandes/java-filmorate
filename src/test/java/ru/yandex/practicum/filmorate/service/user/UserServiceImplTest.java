@@ -9,8 +9,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.EventRowMapper;
 import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
+import ru.yandex.practicum.filmorate.storage.event.EventDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
@@ -25,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({UserServiceImpl.class})
-@ContextConfiguration(classes = {UserDbStorage.class, UserRowMapper.class})
+@Import({UserServiceImpl.class, EventServiceImpl.class})
+@ContextConfiguration(classes = {UserDbStorage.class, UserRowMapper.class, EventDbStorage.class, EventRowMapper.class})
 public class UserServiceImplTest {
     private final UserService userService;
 
