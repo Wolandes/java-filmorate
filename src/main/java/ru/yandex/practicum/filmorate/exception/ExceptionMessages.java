@@ -34,4 +34,5 @@ public class ExceptionMessages {
     public static final String INSERT_REVIEWDISLIKE_ERROR = "Пользователю с id = %d не удалось добавить дизлайк на отзыв с id = %d";
     public static final String DELETE_REVIEWLIKE_ERROR = "Пользователю с id = %d не удалось удалить лайк на отзыв с id = %d";
     public static final String DELETE_REVIEWDISLIKE_ERROR = "Пользователю с id = %d не удалось удалить дизлайк на отзыв с id = %d";
+    public static final String INSERT_EVENT_ERROR = "Не удалось добавить событие с id = %d";
 }

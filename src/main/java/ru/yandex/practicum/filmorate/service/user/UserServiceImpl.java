@@ -6,6 +6,10 @@ import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.event.Event;
+import ru.yandex.practicum.filmorate.model.event.EventOperation;
+import ru.yandex.practicum.filmorate.model.event.EventType;
+import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -16,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final EventServiceImpl eventService;
 
     @Override
     public User getUser(Long userId) {
@@ -74,6 +79,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
         if (user.equals(friend))
             throw new ValidationException("Невозможно добавить в друзья самого себя");
+        eventService.createEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
         return userStorage.addFriend(user, friend);
     }
 
@@ -83,6 +89,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
         User friend = Optional.ofNullable(userStorage.getUser(friendId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
+        eventService.createEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
         userStorage.removeFriend(user, friend);
+    }
+
+    public List<Event> getFeed(Long userId) {
+        return eventService.getFeed(userId);
     }
 }

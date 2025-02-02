@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.model.event.Event;
+import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -102,5 +103,10 @@ public class UserController {
         log.info("Вызван метод DELETE /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
         userService.removeFriend(userId, friendId);
         log.info("Метод DELETE /{id}/friends/{friendId} успешно выполнен");
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Event> getFeed(@PathVariable("id") Long userId) {
+        return userService.getFeed(userId);
     }
 }
