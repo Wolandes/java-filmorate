@@ -25,4 +25,13 @@ public class ExceptionMessages {
     public static final String DIRECTOR_NOT_FOUND_FROM_LIST_ERROR = "Из списка режиссеров с id %s не все элементы найдены";
     public static final String PARAM_VALUE_FILMS_BY_DIRECTOR_ERROR = "Неверно указан параметр сортировки, вы указали %s, допустимые значения: year, likes";
     public static final String PARAM_VALUE_SEARCH_FILMS_ERROR = "Неверно указан параметр поиска, вы указали %s, допустимые значения: director, title";
+    public static final String REVIEW_NOT_FOUND_ERROR = "Отзыв с id = %d не найден";
+    public static final String INSERT_REVIEW_ERROR = "Не удалось добавить отзыв %s";
+    public static final String UPDATE_REVIEW_ERROR = "Не удалось изменить отзыв id = %d";
+    public static final String DELETE_REVIEW_ERROR = "Не удалось удалить отзыв с id = %d";
+    public static final String GET_FILM_REVIEWS_ERROR = "Не удалось получить все отзывы по фильму с id = %d";
+    public static final String INSERT_REVIEWLIKE_ERROR = "Пользователю с id = %d не удалось добавить лайк на отзыв с id = %d";
+    public static final String INSERT_REVIEWDISLIKE_ERROR = "Пользователю с id = %d не удалось добавить дизлайк на отзыв с id = %d";
+    public static final String DELETE_REVIEWLIKE_ERROR = "Пользователю с id = %d не удалось удалить лайк на отзыв с id = %d";
+    public static final String DELETE_REVIEWDISLIKE_ERROR = "Пользователю с id = %d не удалось удалить дизлайк на отзыв с id = %d";
 }
