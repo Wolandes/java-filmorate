@@ -17,12 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventDbStorage implements EventStorage {
     private static final String GET_FEED = """
-            SELECT event_id, timestamp, user_id, event_type, operation, entity_id 
-            FROM feed 
+            SELECT event_id, timestamp, user_id, event_type, operation, entity_id
+            FROM feed
             WHERE user_id = :user_id""";
 
     private static final String INSERT_EVENT = """
-            INSERT INTO feed (timestamp, user_id, event_type, operation, entity_id) 
+            INSERT INTO feed (timestamp, user_id, event_type, operation, entity_id)
             VALUES (:timestamp, :user_id, :event_type, :operation, :entity_id)""";
 
     private final NamedParameterJdbcOperations jdbc;
