@@ -68,9 +68,9 @@ public class ReviewServiceImpl implements ReviewService {
         if (reviewStorage.getReview(reviewId) == null) {
             throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, reviewId));
         }
+        eventService.createEvent(getReview(reviewId).getUserId(), EventType.REVIEW, EventOperation.REMOVE, reviewId);
         reviewStorage.deleteReview(reviewId);
         reviewStorage.deleteReviewUseful(reviewId);
-        eventService.createEvent(getReview(reviewId).getUserId(), EventType.REVIEW, EventOperation.REMOVE, reviewId);
     }
 
     @Override
