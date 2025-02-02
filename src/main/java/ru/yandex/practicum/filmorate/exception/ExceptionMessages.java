@@ -25,7 +25,6 @@ public class ExceptionMessages {
     public static final String DIRECTOR_NOT_FOUND_FROM_LIST_ERROR = "Из списка режиссеров с id %s не все элементы найдены";
     public static final String PARAM_VALUE_FILMS_BY_DIRECTOR_ERROR = "Неверно указан параметр сортировки, вы указали %s, допустимые значения: year, likes";
     public static final String PARAM_VALUE_SEARCH_FILMS_ERROR = "Неверно указан параметр поиска, вы указали %s, допустимые значения: director, title";
-    public static final String PARAM_VALUE_SEARCH_FILMS_ERROR = "Неверно указан параметр поиска, вы указали %s, допустимые значения: director, title";
     public static final String REVIEW_NOT_FOUND_ERROR = "Отзыв с id = %d не найден";
     public static final String INSERT_REVIEW_ERROR = "Не удалось добавить отзыв %s";
     public static final String UPDATE_REVIEW_ERROR = "Не удалось изменить отзыв id = %d";
