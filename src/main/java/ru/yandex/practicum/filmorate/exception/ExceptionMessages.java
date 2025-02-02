@@ -9,10 +9,12 @@ public class ExceptionMessages {
     public static final String SELECT_ERROR = "Ошибка получения данных";
     public static final String INSERT_USERS_ERROR = "Не удалось добавить пользователя %s";
     public static final String UPDATE_USERS_ERROR = "Не удалось изменить пользователя id = %d";
+    public static final String DELETE_USERS_ERROR = "Не удалось удалить пользователя id = %d";
     public static final String INSERT_FRIEND_ERROR = "Пользователю с id = %d не удалось добавить друга с id = %d";
     public static final String DELETE_FRIEND_ERROR = "У пользователя с id = %d не удалось удалить друга с id = %d";
     public static final String INSERT_FILM_ERROR = "Не удалось добавить фильм %s";
     public static final String UPDATE_FILM_ERROR = "Не удалось изменить фильм id = %d";
+    public static final String DELETE_FILM_ERROR = "Не удалось удалить фильм id = %d";
     public static final String INSERT_LIKE_ERROR = "Пользователю с id = %d не удалось добавить лайк на фильм с id = %d";
     public static final String DELETE_LIKE_ERROR = "Пользователю с id = %d не удалось удалить лайк на фильме с id = %d";
     public static final String DIRECTOR_NOT_FOUND_ERROR = "Режиссер с id = %d не найден";

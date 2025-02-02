@@ -58,6 +58,14 @@ public class FilmController {
         return newFilm;
     }
 
+    @DeleteMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFilm(@PathVariable("filmId") Long filmId) {
+        log.info("Вызван метод DELETE /films/{}", filmId);
+        filmService.removeFilm(filmId);
+        log.info("Метод DELETE /films/{} успешно выполнен", filmId);
+    }
+
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") Long count,

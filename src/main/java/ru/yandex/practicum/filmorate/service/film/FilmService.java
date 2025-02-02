@@ -13,6 +13,8 @@ public interface FilmService {
 
     Film updateFilm(Film film);
 
+    void removeFilm(Long filmId);
+
     List<Film> getPopularFilms(Long count, Long genreId, Integer year);
 
     void addLike(Long filmId, Long userId);

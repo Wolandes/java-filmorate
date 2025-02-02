@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -98,6 +100,16 @@ public class UserServiceImplTest {
                 .get()
                 .usingRecursiveComparison()
                 .isEqualTo(userTest);
+    }
+
+    @Test
+    @DisplayName("Удаление пользователя")
+    public void shouldRemoveFilm() {
+        Long userId = getTestUser().getId();
+        userService.removeUser(userId);
+
+        assertThrows(NotFoundException.class,
+                () -> userService.getUser(userId));
     }
 
     @Test

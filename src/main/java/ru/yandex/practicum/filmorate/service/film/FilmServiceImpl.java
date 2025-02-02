@@ -113,6 +113,13 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public void removeFilm(Long filmId) {
+        Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
+        filmStorage.removeFilm(film);
+    }
+
+    @Override
     public List<Film> getPopularFilms(Long count, Long genreId, Integer year) {
         List<Film> films = Optional.ofNullable(filmStorage.getPopularFilms(count, genreId, year))
                 .orElse(new ArrayList<>());
