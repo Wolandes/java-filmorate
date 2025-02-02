@@ -7,13 +7,15 @@ import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
 import ru.yandex.practicum.filmorate.model.event.EventType;
-import ru.yandex.practicum.filmorate.service.event.EventService;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +25,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewDbStorage reviewStorage;
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
-    private final EventService eventService;
+    private final EventStorage eventStorage;
 
     @Override
     public Review getReview(Long reviewId) {
@@ -41,7 +43,14 @@ public class ReviewServiceImpl implements ReviewService {
         }
         Review newReview = Optional.ofNullable(reviewStorage.createReview(review))
                 .orElseThrow(() -> new DbException(String.format(ExceptionMessages.INSERT_REVIEW_ERROR, review)));
-        eventService.createEvent(newReview.getUserId(), EventType.REVIEW, EventOperation.ADD, newReview.getReviewId());
+        Event event = Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(newReview.getUserId())
+                .eventType(EventType.REVIEW)
+                .operation(EventOperation.ADD)
+                .entityId(newReview.getReviewId())
+                .build();
+        eventStorage.createEvent(event);
         return newReview;
     }
 
@@ -59,7 +68,14 @@ public class ReviewServiceImpl implements ReviewService {
         Review newReview = Optional.ofNullable(reviewStorage.updateReview(review))
                 .orElseThrow(() -> new DbException(String.format(ExceptionMessages.UPDATE_REVIEW_ERROR, review)));
         newReview.setUseful(reviewStorage.getUseful(review.getReviewId()));
-        eventService.createEvent(newReview.getUserId(), EventType.REVIEW, EventOperation.UPDATE, newReview.getReviewId());
+        Event event = Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(newReview.getUserId())
+                .eventType(EventType.REVIEW)
+                .operation(EventOperation.UPDATE)
+                .entityId(newReview.getReviewId())
+                .build();
+        eventStorage.createEvent(event);
         return newReview;
     }
 
@@ -68,7 +84,14 @@ public class ReviewServiceImpl implements ReviewService {
         if (reviewStorage.getReview(reviewId) == null) {
             throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, reviewId));
         }
-        eventService.createEvent(getReview(reviewId).getUserId(), EventType.REVIEW, EventOperation.REMOVE, reviewId);
+        Event event = Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(getReview(reviewId).getUserId())
+                .eventType(EventType.REVIEW)
+                .operation(EventOperation.REMOVE)
+                .entityId(reviewId)
+                .build();
+        eventStorage.createEvent(event);
         reviewStorage.deleteReview(reviewId);
         reviewStorage.deleteReviewUseful(reviewId);
     }

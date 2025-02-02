@@ -9,9 +9,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
 import ru.yandex.practicum.filmorate.model.event.EventType;
-import ru.yandex.practicum.filmorate.service.event.EventService;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
-    private final EventService eventService;
+    private final EventStorage eventStorage;
 
     @Override
     public User getUser(Long userId) {
@@ -79,7 +80,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
         if (user.equals(friend))
             throw new ValidationException("Невозможно добавить в друзья самого себя");
-        eventService.createEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
+        Event event = Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.ADD)
+                .entityId(friendId)
+                .build();
+        eventStorage.createEvent(event);
         return userStorage.addFriend(user, friend);
     }
 
@@ -89,11 +97,18 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
         User friend = Optional.ofNullable(userStorage.getUser(friendId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
-        eventService.createEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
+        Event event = Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .eventType(EventType.FRIEND)
+                .operation(EventOperation.REMOVE)
+                .entityId(friendId)
+                .build();
+        eventStorage.createEvent(event);
         userStorage.removeFriend(user, friend);
     }
 
     public List<Event> getFeed(Long userId) {
-        return eventService.getFeed(userId);
+        return eventStorage.getFeed(userId);
     }
 }

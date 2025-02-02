@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.event.Event;
-import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)

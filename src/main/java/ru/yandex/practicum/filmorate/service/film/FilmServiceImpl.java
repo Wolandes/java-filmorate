@@ -10,10 +10,11 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
 import ru.yandex.practicum.filmorate.model.event.EventType;
-import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.SearchBy;
 import ru.yandex.practicum.filmorate.storage.film.SortBy;
@@ -21,6 +22,7 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpaa.MpaaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,7 @@ public class FilmServiceImpl implements FilmService {
     private final MpaaStorage mpaaStorage;
     private final GenreStorage genreStorage;
     private final DirectorStorage directorStorage;
-    private final EventService eventService;
+    private final EventStorage eventStorage;
 
     @Override
     public Film getFilm(Long filmId) {
@@ -139,7 +141,14 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
         User user = Optional.ofNullable(userStorage.getUser(userId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
-        eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
+        Event event = Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.ADD)
+                .entityId(filmId)
+                .build();
+        eventStorage.createEvent(event);
         filmStorage.addLike(film, user);
     }
 
@@ -149,7 +158,14 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
         User user = Optional.ofNullable(userStorage.getUser(userId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
-        eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+        Event event = Event.builder()
+                .timestamp(Instant.now().toEpochMilli())
+                .userId(userId)
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.REMOVE)
+                .entityId(filmId)
+                .build();
+        eventStorage.createEvent(event);
         filmStorage.removeLike(film, user);
     }
 
