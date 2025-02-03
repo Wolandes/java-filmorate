@@ -23,6 +23,7 @@ values (1, 2),
 
 insert into public.likes (film_id, user_id)
 values(1, 3);
+values(1, 2);
 
 insert into public.directors (name)
 values ('test director'),

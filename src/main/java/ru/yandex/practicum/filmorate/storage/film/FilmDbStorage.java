@@ -131,7 +131,16 @@ public class FilmDbStorage implements FilmStorage {
             JOIN likes l ON f.id = l.film_id
             WHERE l.user_id = :similarUser AND f.id NOT IN (:likedFilms)
             """;
-
+    private static final String GET_COMMON_FILMS = """
+            select f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name as mpaa_name,
+            (select count(*) from public.likes l where l.film_id = f.id) as count_likes
+            from public.films f
+            inner join public.mpaa m on m.id = f.mpaa_id
+            inner join likes lu on lu.film_id = f.id
+            inner join likes lf on lf.film_id = f.id
+            where lu.user_id = :user_id and lf.user_id = :friend_id
+            order by count_likes desc
+            """;
 
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<Film> filmRowMapper;
@@ -360,5 +369,17 @@ public class FilmDbStorage implements FilmStorage {
                     };
                 })
                 .collect(Collectors.joining(" or "));
+    }
+
+    @Override
+    public List<Film> getCommonFilms(User user, User friend) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", user.getId());
+        params.addValue("friend_id", friend.getId());
+        try {
+            return jdbc.query(GET_COMMON_FILMS, params, filmRowMapper);
+        } catch (DataAccessException ignored) {
+            throw new DbException(String.format(ExceptionMessages.SELECT_ERROR));
+        }
     }
 }

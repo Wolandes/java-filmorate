@@ -33,4 +33,6 @@ public interface FilmStorage {
     List<Long> getSimilarUser(Long userId, List<Long> likedFilms);
 
     List<Film> findRecommendations(Long userId, List<Long> likedFilms, Long similarUser);
+
+    List<Film> getCommonFilms(User user, User friend);
 }

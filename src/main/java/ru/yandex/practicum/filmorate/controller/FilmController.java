@@ -112,4 +112,14 @@ public class FilmController {
         log.info("Метод GET /search вернул ответ {}", films);
         return films;
     }
+
+    @GetMapping("/common")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getCommonFilms(@RequestParam("userId") Long userId,
+                                     @RequestParam("friendId") Long friendId) {
+        log.info("Вызван метод GET /common с userId = {} и friendId = {}", userId, friendId);
+        List<Film> films = filmService.getCommonFilms(userId, friendId);
+        log.info("Метод GET /common вернул ответ {}", films);
+        return films;
+    }
 }

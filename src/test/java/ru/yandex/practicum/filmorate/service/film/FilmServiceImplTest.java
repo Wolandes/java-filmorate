@@ -294,7 +294,7 @@ public class FilmServiceImplTest {
                 .usingRecursiveComparison()
                 .isEqualTo(testFilm);
 
-        testFilm.remove(0);
+        testFilm.removeFirst();
 
         assertThat(filmOptional)
                 .isPresent()
@@ -302,5 +302,19 @@ public class FilmServiceImplTest {
                 .usingRecursiveComparison()
                 .isNotEqualTo(testFilm);
 
+    }
+
+    @Test
+    @DisplayName("Список общих фильмов")
+    public void shouldGetCommonFilms() {
+        List<Film> testFilm = new ArrayList<>();
+        testFilm.add(getTestFilm());
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getCommonFilms(2L, 3L));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
     }
 }
