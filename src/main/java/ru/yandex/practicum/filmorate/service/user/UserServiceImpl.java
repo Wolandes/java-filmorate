@@ -1,11 +1,16 @@
 package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
 import ru.yandex.practicum.filmorate.model.event.EventType;
@@ -17,10 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
     private final EventStorage eventStorage;
 
     @Override
@@ -110,5 +119,31 @@ public class UserServiceImpl implements UserService {
 
     public List<Event> getFeed(Long userId) {
         return eventStorage.getFeed(userId);
+    }
+
+    @Override
+    public List<Film> findRecommendations(Long userId) {
+        List<Long> likedFilms = filmStorage.getLikedFilm(userId);
+        if (likedFilms.isEmpty()) {
+            log.info("Список понравишься фильмов пуст");
+            return List.of();
+        }
+
+        Long similarUser = filmStorage.getSimilarUser(userId, likedFilms)
+                .stream()
+                .findFirst()
+                .orElse(null);
+        if (similarUser == null) {
+            log.info("Похожих пользователей нет, рекомендации нет");
+            return List.of();
+        }
+
+        List<Film> films = filmStorage.findRecommendations(userId, likedFilms, similarUser);
+        if (films.isEmpty()) {
+            log.info("У похожего пользователя нет новых фильмов для рекомендации");
+        }
+        genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
+        return films;
     }
 }

@@ -15,6 +15,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -109,6 +111,27 @@ public class FilmDbStorage implements FilmStorage {
             delete from public.films
             where id = :id;
             """;
+    private static final String LIKED_FILMS = """
+            SELECT film_id
+            FROM likes
+            WHERE user_id = :userId;
+            """;
+    private static final String SIMILAR_USER = """
+            SELECT l.user_id
+            FROM likes l
+            WHERE l.film_id IN (:likedFilms) AND l.user_id <> :userId
+            GROUP BY l.user_id
+            ORDER BY COUNT(l.film_id) DESC
+            LIMIT 1
+            """;
+    private static final String RECOMMENDED_FILMS = """
+            SELECT f.id, f.name, f.description, f.release_date, f.duration, f.mpaa_id, m.name AS mpaa_name
+            FROM films f
+            INNER JOIN public.mpaa m ON m.id = f.mpaa_id
+            JOIN likes l ON f.id = l.film_id
+            WHERE l.user_id = :similarUser AND f.id NOT IN (:likedFilms)
+            """;
+
 
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<Film> filmRowMapper;
@@ -296,6 +319,31 @@ public class FilmDbStorage implements FilmStorage {
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.SELECT_ERROR));
         }
+    }
+
+    @Override
+    public List<Long> getLikedFilm(Long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        return jdbc.query(LIKED_FILMS, params, (rs, rowNum) -> rs.getLong("film_id"));
+    }
+
+    @Override
+    public List<Long> getSimilarUser(Long userId, List<Long> likedFilms) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("likedFilms", likedFilms);
+        return jdbc.query(SIMILAR_USER, params, (rs, rowNow) -> rs.getLong("user_Id"));
+    }
+
+    @Override
+    public List<Film> findRecommendations(Long userId, List<Long> likedFilms, Long similarUser) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("likedFilms", likedFilms);
+        params.addValue("similarUser", similarUser);
+        Set<Film> films = new HashSet<>(jdbc.query(RECOMMENDED_FILMS, params, filmRowMapper));
+        return new ArrayList<>(films);
     }
 
     static String getWhereToSearchFilms(Set<SearchBy> by) {
