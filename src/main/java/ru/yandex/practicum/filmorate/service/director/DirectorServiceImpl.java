@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service.director;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbException;
-import ru.yandex.practicum.filmorate.exception.DeleteDbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -49,9 +48,6 @@ public class DirectorServiceImpl implements DirectorService {
     public void removeDirector(Long directorId) {
         Director director = Optional.ofNullable(directorStorage.getDirector(directorId))
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, directorId)));
-        if (directorStorage.getCountFilmByDirector(director) > 0L) {
-            throw new DeleteDbException(String.format(ExceptionMessages.CHECK_DELETE_DIRECTOR_ERROR, director.getId()));
-        }
         directorStorage.removeDirector(director);
     }
 }

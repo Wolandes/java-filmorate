@@ -37,19 +37,16 @@ public class DirectorDbStorage implements DirectorStorage {
             where id = :id
             """;
     private static final String DELETE_DIRECTOR = """
+            delete from public.film_director
+            where director_id = :id;
             delete from public.directors
-            where id = :id
+            where id = :id;
             """;
     private static final String GET_FILM_DIRECTOR = """
             select fd.film_id, fd.director_id, d.name as director_name
             from public.film_director fd
             inner join public.directors d on d.id = fd.director_id
             where fd.film_id in (:film_ids)
-            """;
-    private static final String GET_COUNT_FILM_BY_DIRECTOR = """
-            select count(*) as count_film
-            from public.film_director
-            where director_id = :director_id
             """;
 
     private final NamedParameterJdbcOperations jdbc;
@@ -126,15 +123,6 @@ public class DirectorDbStorage implements DirectorStorage {
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.DELETE_DIRECTOR_ERROR, director.getId()));
         }
-    }
-
-    @Override
-    public long getCountFilmByDirector(Director director) {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("director_id", director.getId());
-        return Optional.ofNullable(jdbc.query(GET_COUNT_FILM_BY_DIRECTOR, params, (rs) -> {
-            return rs.next() ? rs.getLong("count_film") : 0L;
-        })).orElse(0L);
     }
 
     @Override

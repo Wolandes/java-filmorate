@@ -100,6 +100,7 @@ public class FilmDbStorage implements FilmStorage {
             from public.films f
             inner join public.mpaa m on m.id = f.mpaa_id
             where %s
+            order by count_likes desc
             """;
     private static final String DELETE_FILM = """
             delete from public.likes
@@ -363,9 +364,9 @@ public class FilmDbStorage implements FilmStorage {
                                 exists(select fd.director_id
                                 from public.film_director fd
                                 inner join public.directors d on d.id = fd.director_id
-                                where fd.film_id = f.id and d.name like '%' || :query || '%')
+                                where fd.film_id = f.id and upper(d.name) like upper('%' || :query || '%'))
                                 """;
-                        case TITLE -> "f.name like '%' || :query || '%'";
+                        case TITLE -> "upper(f.name) like upper('%' || :query || '%')";
                     };
                 })
                 .collect(Collectors.joining(" or "));

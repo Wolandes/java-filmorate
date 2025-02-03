@@ -21,6 +21,4 @@ public interface DirectorStorage {
     void addDirectorsToFilm(Film film);
 
     void addDirectorsToFilm(List<Film> films);
-
-    long getCountFilmByDirector(Director director);
 }
