@@ -28,5 +28,9 @@ public interface FilmStorage {
 
     List<Film> searchFilms(String query, Set<SearchBy> by);
 
-    List<Film> findRecommendations(Long userId);
+    List<Long> getLikedFilm(Long userId);
+
+    List<Long> getSimilarUser(Long userId, List<Long> likedFilms);
+
+    List<Film> findRecommendations(Long userId, List<Long> likedFilms, Long similarUser);
 }

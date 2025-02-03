@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -121,9 +123,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Film> findRecommendations(Long userId) {
-        List<Film> filmList = filmStorage.findRecommendations(userId);
-        genreStorage.addGenresToFilm(filmList);
-        directorStorage.addDirectorsToFilm(filmList);
-        return filmList;
+        List<Long> likedFilms = filmStorage.getLikedFilm(userId);
+        if (likedFilms.isEmpty()) {
+            log.info("Список понравишься фильмов пуст");
+            return List.of();
+        }
+
+        Long similarUser = filmStorage.getSimilarUser(userId, likedFilms)
+                .stream()
+                .findFirst()
+                .orElse(null);
+        if (similarUser == null) {
+            log.info("Похожих пользователей нет, рекомендации нет");
+            return List.of();
+        }
+
+        List<Film> films = filmStorage.findRecommendations(userId, likedFilms, similarUser);
+        if (films.isEmpty()) {
+            log.info("У похожего пользователя нет новых фильмов для рекомендации");
+        }
+        genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
+        return films;
     }
 }

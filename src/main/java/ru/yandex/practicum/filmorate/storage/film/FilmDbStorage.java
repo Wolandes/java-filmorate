@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
@@ -324,29 +323,27 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findRecommendations(Long userId) {
+    public List<Long> getLikedFilm(Long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("userId", userId);
-        List<Long> likedFilms = jdbc.query(LIKED_FILMS, params, (rs, rowNum) -> rs.getLong("film_id"));
+        return jdbc.query(LIKED_FILMS, params, (rs, rowNum) -> rs.getLong("film_id"));
+    }
 
-        if (likedFilms.isEmpty()) {
-            log.info("Список понравишься фильмов пуст");
-            return List.of();
-        }
+    @Override
+    public List<Long> getSimilarUser(Long userId, List<Long> likedFilms) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
         params.addValue("likedFilms", likedFilms);
-        Long similarUser = jdbc.query(SIMILAR_USER, params, (rs, rowNow) -> rs.getLong("user_Id"))
-                .stream()
-                .findFirst()
-                .orElse(null);
-        if (similarUser == null) {
-            log.info("Похожих пользователей нет, рекомендации нет");
-            return List.of();
-        }
+        return jdbc.query(SIMILAR_USER, params, (rs, rowNow) -> rs.getLong("user_Id"));
+    }
+
+    @Override
+    public List<Film> findRecommendations(Long userId, List<Long> likedFilms, Long similarUser) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("likedFilms", likedFilms);
         params.addValue("similarUser", similarUser);
         Set<Film> films = new HashSet<>(jdbc.query(RECOMMENDED_FILMS, params, filmRowMapper));
-        if (films.isEmpty()) {
-            log.info("У похожего пользователя нет новых фильмов для рекомендации");
-        }
         return new ArrayList<>(films);
     }
 
