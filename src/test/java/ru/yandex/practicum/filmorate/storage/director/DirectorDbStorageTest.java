@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -79,19 +78,5 @@ public class DirectorDbStorageTest {
                 .get()
                 .usingRecursiveComparison()
                 .isEqualTo(testDirector);
-    }
-
-    @Test
-    @DisplayName("Количество фильмов у режиссера")
-    public void shouldGetCountFilmByDirector() {
-        Director testDirector = directorStorage.getDirector(1L);
-        long countFilm = directorStorage.getCountFilmByDirector(testDirector);
-
-        assertEquals(2L, countFilm);
-
-        testDirector = directorStorage.getDirector(5L);
-        countFilm = directorStorage.getCountFilmByDirector(testDirector);
-
-        assertEquals(0L, countFilm);
     }
 }

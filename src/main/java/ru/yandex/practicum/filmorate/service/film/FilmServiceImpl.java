@@ -195,4 +195,17 @@ public class FilmServiceImpl implements FilmService {
         directorStorage.addDirectorsToFilm(films);
         return films;
     }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        User user = Optional.ofNullable(userStorage.getUser(userId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+        User friend = Optional.ofNullable(userStorage.getUser(friendId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
+        List<Film> films = Optional.ofNullable(filmStorage.getCommonFilms(user, friend))
+                .orElse(new ArrayList<>());
+        genreStorage.addGenresToFilm(films);
+        directorStorage.addDirectorsToFilm(films);
+        return films;
+    }
 }

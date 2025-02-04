@@ -85,7 +85,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public void removeLike(@PathVariable("id") Long filmId,
                            @PathVariable("userId") Long userId) {
         log.info("Вызван метод DELETE /films/{id}/like/{userId} с id = {} и userId = {}", filmId, userId);
@@ -110,6 +110,16 @@ public class FilmController {
         log.info("Вызван метод GET /search с query = {} и by = {}", query, by);
         List<Film> films = filmService.searchFilms(query, by);
         log.info("Метод GET /search вернул ответ {}", films);
+        return films;
+    }
+
+    @GetMapping("/common")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getCommonFilms(@RequestParam("userId") Long userId,
+                                     @RequestParam("friendId") Long friendId) {
+        log.info("Вызван метод GET /common с userId = {} и friendId = {}", userId, friendId);
+        List<Film> films = filmService.getCommonFilms(userId, friendId);
+        log.info("Метод GET /common вернул ответ {}", films);
         return films;
     }
 }
