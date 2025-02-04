@@ -121,6 +121,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<Event> getFeed(Long userId) {
+        User user = Optional.ofNullable(userStorage.getUser(userId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
         return eventStorage.getFeed(userId);
     }
 

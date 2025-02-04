@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DbException;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.model.event.EventOperation;
@@ -67,6 +66,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
         Review newReview = Optional.ofNullable(reviewStorage.updateReview(review))
                 .orElseThrow(() -> new DbException(String.format(ExceptionMessages.UPDATE_REVIEW_ERROR, review)));
+        newReview = reviewStorage.getReview(newReview.getReviewId()).get();
         newReview.setUseful(reviewStorage.getUseful(review.getReviewId()));
         Event event = Event.builder()
                 .timestamp(Instant.now().toEpochMilli())
@@ -92,8 +92,8 @@ public class ReviewServiceImpl implements ReviewService {
                 .entityId(reviewId)
                 .build();
         eventStorage.createEvent(event);
-        reviewStorage.deleteReview(reviewId);
         reviewStorage.deleteReviewUseful(reviewId);
+        reviewStorage.deleteReview(reviewId);
     }
 
     @Override
@@ -104,8 +104,9 @@ public class ReviewServiceImpl implements ReviewService {
                     .limit(count)
                     .toList();
         } else {
-            Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
-                    .orElseThrow(() -> new NotFoundException("Фильм с идентификатором " + filmId + " не найден."));
+            if (filmStorage.getFilm(filmId) == null) {
+                throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId));
+            }
             return reviewStorage.getFilmReviews(filmId)
                     .stream()
                     .limit(count)

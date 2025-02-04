@@ -21,25 +21,25 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
     private static final String GET_REVIEW = """
-            select r.id, r.content, r.user_id, r.film_id, r.is_positive, SUM(ru.weight) as useful
+            select r.id, r.content, r.user_id, r.film_id, r.is_positive, COALESCE(SUM(ru.weight), 0) as useful
             from public.reviews r
             left outer join public.review_useful ru on r.id = ru.review_id
             where r.id = :id
             group by ru.review_id
             """;
     private static final String GET_REVIEWS = """
-            select r.id, r.content, r.user_id, r.film_id, r.is_positive, SUM(ru.weight) as useful
+            select r.id, r.content, r.user_id, r.film_id, r.is_positive, COALESCE(SUM(ru.weight), 0) as useful
             from public.reviews r
             left outer join public.review_useful ru on r.id = ru.review_id
-            group by ru.review_id
+            group by ru.review_id, r.id
             order by useful desc
             """;
     private static final String GET_FILM_REVIEWS = """
-            select r.id, r.content, r.user_id, r.film_id, r.is_positive, SUM(ru.weight) as useful
+            select r.id, r.content, r.user_id, r.film_id, r.is_positive, COALESCE(SUM(ru.weight), 0) as useful
             from public.reviews r
             left outer join public.review_useful ru on r.id = ru.review_id
             where r.film_id = :film_id
-            group by ru.review_id
+            group by ru.review_id, r.id
             order by useful desc
             """;
     private static final String INSERT_REVIEW = """
@@ -49,8 +49,6 @@ public class ReviewDbStorage implements ReviewStorage {
     private static final String UPDATE_REVIEW = """
             update public.reviews
             set content = :content,
-            user_id = :user_id,
-            film_id = :film_id,
             is_positive = :is_positive
             where id = :id
             """;
@@ -162,8 +160,6 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review updateReview(Review review) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("content", review.getContent());
-        params.addValue("user_id", review.getUserId());
-        params.addValue("film_id", review.getFilmId());
         params.addValue("is_positive", review.getIsPositive());
         params.addValue("id", review.getReviewId());
         try {
