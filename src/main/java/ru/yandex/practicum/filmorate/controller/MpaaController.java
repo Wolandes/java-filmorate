@@ -16,8 +16,7 @@ import java.util.List;
 public class MpaaController {
     private final MpaaService mpaaService;
 
-    @GetMapping
-    @RequestMapping("/{id}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mpaa getMpaa(@PathVariable("id") Long mpaaId) {
         log.info("Вызван метод GET /mpa/{}", mpaaId);

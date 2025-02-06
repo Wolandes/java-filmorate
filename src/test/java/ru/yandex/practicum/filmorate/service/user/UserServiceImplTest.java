@@ -8,8 +8,18 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
-import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
+import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
+import ru.yandex.practicum.filmorate.service.genre.GenreServiceImpl;
+import ru.yandex.practicum.filmorate.service.mpaa.MpaaServiceImpl;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.event.EventDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.mpaa.MpaaDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
@@ -19,12 +29,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({UserServiceImpl.class})
-@ContextConfiguration(classes = {UserDbStorage.class, UserRowMapper.class})
+@Import({UserServiceImpl.class, EventServiceImpl.class, FilmServiceImpl.class, GenreServiceImpl.class, MpaaServiceImpl.class})
+@ContextConfiguration(classes = {UserDbStorage.class, FilmRowMapper.class, FilmDbStorage.class, UserRowMapper.class, EventDbStorage.class, EventRowMapper.class, GenreRowMapper.class, DirectorRowMapper.class, DirectorDbStorage.class, GenreDbStorage.class, MpaaRowMapper.class, MpaaDbStorage.class})
 public class UserServiceImplTest {
     private final UserService userService;
 
@@ -98,6 +109,16 @@ public class UserServiceImplTest {
                 .get()
                 .usingRecursiveComparison()
                 .isEqualTo(userTest);
+    }
+
+    @Test
+    @DisplayName("Удаление пользователя")
+    public void shouldRemoveFilm() {
+        Long userId = getTestUser().getId();
+        userService.removeUser(userId);
+
+        assertThrows(NotFoundException.class,
+                () -> userService.getUser(userId));
     }
 
     @Test

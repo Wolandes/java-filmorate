@@ -58,13 +58,21 @@ public class FilmController {
         return newFilm;
     }
 
+    @DeleteMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFilm(@PathVariable("filmId") Long filmId) {
+        log.info("Вызван метод DELETE /films/{}", filmId);
+        filmService.removeFilm(filmId);
+        log.info("Метод DELETE /films/{} успешно выполнен", filmId);
+    }
+
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") Long count) {
-        log.info("Вызван метод GET /films/popular с count = {}", count);
-        List<Film> popularFilms = filmService.getPopularFilms(count);
-        log.info("Метод GET /films/popular вернул ответ {}", popularFilms);
-        return popularFilms;
+    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") Long count,
+                                      @RequestParam(value = "genreId", required = false) Long genreId,
+                                      @RequestParam(value = "year", required = false) Integer year) {
+        log.info("Получение популярных фильмов: count={}, genreId={}, year={}", count, genreId, year);
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -77,11 +85,41 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public void removeLike(@PathVariable("id") Long filmId,
                            @PathVariable("userId") Long userId) {
         log.info("Вызван метод DELETE /films/{id}/like/{userId} с id = {} и userId = {}", filmId, userId);
         filmService.removeLike(filmId, userId);
         log.info("Метод DELETE /films/{id}/like/{userId} успешно выполнен");
+    }
+
+    @GetMapping("/director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getFilmsByDirectorId(@PathVariable("directorId") Long directorId,
+                                           @RequestParam("sortBy") String sortBy) {
+        log.info("Вызван метод GET /director/{} с sortBy = {}", directorId, sortBy);
+        List<Film> films = filmService.getFilmsByDirectorId(directorId, sortBy);
+        log.info("Метод GET /director/{} вернул ответ {}", directorId, films);
+        return films;
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getSearchFilms(@RequestParam("query") String query,
+                                     @RequestParam("by") String by) {
+        log.info("Вызван метод GET /search с query = {} и by = {}", query, by);
+        List<Film> films = filmService.searchFilms(query, by);
+        log.info("Метод GET /search вернул ответ {}", films);
+        return films;
+    }
+
+    @GetMapping("/common")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getCommonFilms(@RequestParam("userId") Long userId,
+                                     @RequestParam("friendId") Long friendId) {
+        log.info("Вызван метод GET /common с userId = {} и friendId = {}", userId, friendId);
+        List<Film> films = filmService.getCommonFilms(userId, friendId);
+        log.info("Метод GET /common вернул ответ {}", films);
+        return films;
     }
 }

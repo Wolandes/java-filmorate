@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.event.Event;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
@@ -19,6 +21,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUser(@PathVariable("id") Long userId) {
+        log.info("Вызван метод GET /users/{}", userId);
+        User user = userService.getUser(userId);
+        log.info("Метод GET /users/{} вернул ответ {}", userId, user);
+        return user;
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -47,6 +58,14 @@ public class UserController {
         User newUser = userService.updateUser(user);
         log.info("Метод PUT /users вернул ответ {}", newUser);
         return newUser;
+    }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeUser(@PathVariable("userId") Long userId) {
+        log.info("Вызван метод DELETE /users/{}", userId);
+        userService.removeUser(userId);
+        log.info("Метод DELETE /users/{} успешно выполнен", userId);
     }
 
     @GetMapping("/{id}/friends")
@@ -85,5 +104,19 @@ public class UserController {
         log.info("Вызван метод DELETE /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
         userService.removeFriend(userId, friendId);
         log.info("Метод DELETE /{id}/friends/{friendId} успешно выполнен");
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Event> getFeed(@PathVariable("id") Long userId) {
+        return userService.getFeed(userId);
+    }
+
+    @GetMapping("{id}/recommendations")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getRecommendations(@PathVariable Long id) {
+        log.info("Вызван метод GET /{id}/recommendations c id = {}", id);
+        List<Film> films = userService.findRecommendations(id);
+        log.info("Метод GET /{id}/recommendations c id = {} вернул ответ {}", id, films);
+        return films;
     }
 }

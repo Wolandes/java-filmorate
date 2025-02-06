@@ -53,6 +53,14 @@ public class UserDbStorage implements UserStorage {
             where user_id = :user_id
             and friend_id = :friend_id
             """;
+    private static final String DELETE_USER = """
+            delete from public.likes
+            where user_id = :id;
+            delete from public.friends
+            where user_id = :id or friend_id = :id;
+            delete from public.users
+            where id = :id;
+            """;
 
     private final NamedParameterJdbcOperations jdbc;
     private final RowMapper<User> mapper;
@@ -109,6 +117,17 @@ public class UserDbStorage implements UserStorage {
             return getUser(user.getId());
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.UPDATE_USERS_ERROR, user.getId()));
+        }
+    }
+
+    @Override
+    public void removeUser(User user) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", user.getId());
+        try {
+            jdbc.update(DELETE_USER, params);
+        } catch (DataAccessException ignored) {
+            throw new DbException(ExceptionMessages.DELETE_USERS_ERROR);
         }
     }
 

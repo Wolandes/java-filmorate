@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validation.DateAfter;
 import ru.yandex.practicum.filmorate.validation.ValidatorGroups;
 
@@ -19,6 +20,7 @@ import java.util.Set;
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
+@NoArgsConstructor
 public class Film {
     @NotNull(groups = {ValidatorGroups.Update.class},
             message = "id должен быть указан")
@@ -41,4 +43,5 @@ public class Film {
             message = "Возрастной рейтинг не может быть пустым")
     private Mpaa mpa;
     private Set<Genre> genres;
+    private Set<Director> directors;
 }

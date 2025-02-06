@@ -8,13 +8,15 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
-import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
-import ru.yandex.practicum.filmorate.mapper.GenreRowMapper;
-import ru.yandex.practicum.filmorate.mapper.MpaaRowMapper;
-import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.*;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpaa;
+import ru.yandex.practicum.filmorate.service.event.EventServiceImpl;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.event.EventDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpaa.MpaaDbStorage;
@@ -22,27 +24,30 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmServiceImpl.class})
+@Import({FilmServiceImpl.class, EventServiceImpl.class})
 @ContextConfiguration(classes = {FilmDbStorage.class, FilmRowMapper.class,
         UserDbStorage.class, UserRowMapper.class, MpaaDbStorage.class, MpaaRowMapper.class,
-        GenreDbStorage.class, GenreRowMapper.class})
+        GenreDbStorage.class, GenreRowMapper.class, DirectorDbStorage.class, DirectorRowMapper.class,
+        EventDbStorage.class, EventRowMapper.class})
 public class FilmServiceImplTest {
     private final FilmServiceImpl filmService;
 
     static Film getTestFilm() {
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+        Set<Genre> genres = new LinkedHashSet<>();
         genres.add(new Genre(2L, "Драма"));
         genres.add(new Genre(3L, "Мультфильм"));
+
+        Set<Director> directors = new LinkedHashSet<>();
+        directors.add(new Director(1L, "test director"));
+        directors.add(new Director(2L, "test director2"));
 
         return new Film(1L,
                 "test",
@@ -50,16 +55,17 @@ public class FilmServiceImplTest {
                 LocalDate.of(2000, Month.JANUARY, 1),
                 100,
                 new Mpaa(1L, "G"),
-                genres);
+                genres,
+                directors);
     }
 
     @Test
     @DisplayName("Поиск фильма по id")
     public void shouldGetFilm() {
         Film testFilm = getTestFilm();
-        Optional<Film> userOptional = Optional.ofNullable(filmService.getFilm(testFilm.getId()));
+        Optional<Film> filmOptional = Optional.ofNullable(filmService.getFilm(testFilm.getId()));
 
-        assertThat(userOptional)
+        assertThat(filmOptional)
                 .isPresent()
                 .get()
                 .usingRecursiveComparison()
@@ -69,28 +75,11 @@ public class FilmServiceImplTest {
     @Test
     @DisplayName("Список фильмов")
     public void shouldGetAllFilms() {
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
         List<Film> testFilm = new ArrayList<>();
         testFilm.add(getTestFilm());
-        genres.add(new Genre(2L, "Драма"));
-        testFilm.add(new Film(2L,
-                "test2",
-                "test description2",
-                LocalDate.of(2001, Month.JANUARY, 1),
-                110,
-                new Mpaa(2L, "PG"),
-                genres));
-        genres = new LinkedHashSet<>();
-        genres.add(new Genre(1L, "Комедия"));
-        genres.add(new Genre(2L, "Драма"));
-        genres.add(new Genre(3L, "Мультфильм"));
-        testFilm.add(new Film(3L,
-                "test3",
-                "test description3",
-                LocalDate.of(2002, Month.JANUARY, 1),
-                120,
-                new Mpaa(3L, "PG-13"),
-                genres));
+        testFilm.add(filmService.getFilm(2L));
+        testFilm.add(filmService.getFilm(3L));
+        testFilm.add(filmService.getFilm(4L));
         Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getAllFilms());
 
         assertThat(filmOptional)
@@ -103,18 +92,21 @@ public class FilmServiceImplTest {
     @Test
     @DisplayName("Добавление фильма")
     public void shouldCreateFilm() {
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+        Set<Genre> genres = new LinkedHashSet<>();
         genres.add(new Genre(2L, "Драма"));
+        Set<Director> directors = new LinkedHashSet<>();
+        directors.add(new Director(3L, "test director3"));
         Film testFilm = getTestFilm().toBuilder()
-                .id(4L)
-                .name("test4")
-                .description("test description4")
-                .releaseDate(LocalDate.of(2004, Month.JANUARY, 1))
+                .name("new test")
+                .description("new test description")
+                .releaseDate(LocalDate.of(2024, Month.JANUARY, 1))
                 .duration(80)
                 .mpa(new Mpaa(4L, "R"))
                 .genres(genres)
+                .directors(directors)
                 .build();
         Optional<Film> filmOptional = Optional.ofNullable(filmService.createFilm(testFilm));
+        testFilm.setId(filmOptional.isPresent() ? filmOptional.get().getId() : 0L);
 
         assertThat(filmOptional)
                 .isPresent()
@@ -126,16 +118,15 @@ public class FilmServiceImplTest {
     @Test
     @DisplayName("Изменение фильма")
     public void shouldUpdateFilm() {
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+        Set<Genre> genres = new LinkedHashSet<>();
         genres.add(new Genre(2L, "Драма"));
+        Set<Director> directors = new LinkedHashSet<>();
+        directors.add(new Director(1L, "test director"));
         Film testFilm = getTestFilm().toBuilder()
-                .id(1L)
-                .name("test")
-                .description("test description")
                 .releaseDate(LocalDate.of(2005, Month.JANUARY, 1))
-                .duration(100)
                 .mpa(new Mpaa(2L, "PG"))
                 .genres(genres)
+                .directors(directors)
                 .build();
         Optional<Film> filmOptional = Optional.ofNullable(filmService.updateFilm(testFilm));
 
@@ -147,24 +138,24 @@ public class FilmServiceImplTest {
     }
 
     @Test
+    @DisplayName("Удаление фильма")
+    public void shouldRemoveFilm() {
+        Long filmId = getTestFilm().getId();
+        filmService.removeFilm(filmId);
+
+        assertThrows(NotFoundException.class,
+                () -> filmService.getFilm(filmId));
+    }
+
+    @Test
     @DisplayName("Список популярных фильмов")
     public void shouldGetPopularFilms() {
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
         List<Film> testFilm = new ArrayList<>();
-        genres.add(new Genre(1L, "Комедия"));
-        genres.add(new Genre(2L, "Драма"));
-        genres.add(new Genre(3L, "Мультфильм"));
-        testFilm.add(new Film(3L,
-                "test3",
-                "test description3",
-                LocalDate.of(2002, Month.JANUARY, 1),
-                120,
-                new Mpaa(3L, "PG-13"),
-                genres));
+        testFilm.add(filmService.getFilm(3L));
         testFilm.add(getTestFilm());
         filmService.addLike(3L, 1L);
         filmService.addLike(3L, 2L);
-        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(2L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(2L, null, null));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -178,7 +169,7 @@ public class FilmServiceImplTest {
     public void shouldAddLike() {
         List<Film> testFilm = new ArrayList<>();
         testFilm.add(getTestFilm());
-        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L, null, null));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -186,21 +177,11 @@ public class FilmServiceImplTest {
                 .usingRecursiveComparison()
                 .isEqualTo(testFilm);
 
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
         testFilm.clear();
-        genres.add(new Genre(1L, "Комедия"));
-        genres.add(new Genre(2L, "Драма"));
-        genres.add(new Genre(3L, "Мультфильм"));
-        testFilm.add(new Film(3L,
-                "test3",
-                "test description3",
-                LocalDate.of(2002, Month.JANUARY, 1),
-                120,
-                new Mpaa(3L, "PG-13"),
-                genres));
+        testFilm.add(filmService.getFilm(3L));
         filmService.addLike(3L, 1L);
         filmService.addLike(3L, 2L);
-        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L, null, null));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -212,21 +193,11 @@ public class FilmServiceImplTest {
     @Test
     @DisplayName("Удалить лайк")
     public void shouldRemoveLike() {
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
         List<Film> testFilm = new ArrayList<>();
-        genres.add(new Genre(1L, "Комедия"));
-        genres.add(new Genre(2L, "Драма"));
-        genres.add(new Genre(3L, "Мультфильм"));
-        testFilm.add(new Film(3L,
-                "test3",
-                "test description3",
-                LocalDate.of(2002, Month.JANUARY, 1),
-                120,
-                new Mpaa(3L, "PG-13"),
-                genres));
+        testFilm.add(filmService.getFilm(3L));
         filmService.addLike(3L, 1L);
         filmService.addLike(3L, 2L);
-        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L, null, null));
 
         assertThat(filmOptional)
                 .isPresent()
@@ -237,12 +208,113 @@ public class FilmServiceImplTest {
         testFilm.clear();
         testFilm.add(getTestFilm());
         filmService.removeLike(3L, 1L);
-        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L));
+        filmOptional = Optional.ofNullable(filmService.getPopularFilms(1L, null, null));
 
         assertThat(filmOptional)
                 .isPresent()
                 .get()
                 .usingRecursiveComparison()
                 .isEqualTo(testFilm);
+    }
+
+    @Test
+    @DisplayName("Список фильмов по режиссеру с сортировкой")
+    public void shouldGetFilmsByDirectorId() {
+        List<Film> testFilm = new ArrayList<>();
+        testFilm.add(filmService.getFilm(1L));
+        testFilm.add(filmService.getFilm(3L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getFilmsByDirectorId(1L, "year"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+
+        testFilm.clear();
+        testFilm.add(filmService.getFilm(3L));
+        testFilm.add(filmService.getFilm(1L));
+        filmService.addLike(3L, 1L);
+        filmService.addLike(3L, 2L);
+        filmOptional = Optional.ofNullable(filmService.getFilmsByDirectorId(1L, "likes"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+    }
+
+    @Test
+    @DisplayName("Поиск фильмов")
+    public void shouldSearchFilms() {
+        List<Film> testFilm = new ArrayList<>();
+        testFilm.add(filmService.getFilm(2L));
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.searchFilms("2", "title"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("4", "director"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("3", "title"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("2", "director"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
+
+        testFilm.clear();
+        testFilm.add(filmService.getFilm(3L));
+        testFilm.add(filmService.getFilm(4L));
+
+        filmOptional = Optional.ofNullable(filmService.searchFilms("director3", "director,title"));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(testFilm);
+
+        testFilm.removeFirst();
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
+
+    }
+
+    @Test
+    @DisplayName("Список общих фильмов")
+    public void shouldGetCommonFilms() {
+        List<Film> testFilm = new ArrayList<>();
+        testFilm.add(getTestFilm());
+        Optional<List<Film>> filmOptional = Optional.ofNullable(filmService.getCommonFilms(2L, 3L));
+
+        assertThat(filmOptional)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isNotEqualTo(testFilm);
     }
 }
