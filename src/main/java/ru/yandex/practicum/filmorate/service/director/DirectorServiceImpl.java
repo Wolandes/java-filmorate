@@ -38,16 +38,14 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public Director updateDirector(Director director) {
-        Optional.ofNullable(directorStorage.getDirector(director.getId()))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, director.getId())));
+        getDirector(director.getId());
         return Optional.ofNullable(directorStorage.updateDirector(director))
                 .orElseThrow(() -> new DbException(String.format(ExceptionMessages.UPDATE_DIRECTOR_ERROR, director.getId())));
     }
 
     @Override
     public void removeDirector(Long directorId) {
-        Director director = Optional.ofNullable(directorStorage.getDirector(directorId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, directorId)));
+        Director director = getDirector(directorId);
         directorStorage.removeDirector(director);
     }
 }

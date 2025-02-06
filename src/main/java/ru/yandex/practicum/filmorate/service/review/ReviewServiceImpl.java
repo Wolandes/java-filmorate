@@ -34,12 +34,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review createReview(Review review) {
-        if (review.getUserId() != null && userStorage.getUser(review.getUserId()) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, review.getUserId()));
-        }
-        if (review.getFilmId() != null && filmStorage.getFilm(review.getFilmId()) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, review.getFilmId()));
-        }
+        checkUserById(review.getUserId());
+        checkFilmById(review.getFilmId());
         Review newReview = Optional.ofNullable(reviewStorage.createReview(review))
                 .orElseThrow(() -> new DbException(String.format(ExceptionMessages.INSERT_REVIEW_ERROR, review)));
         Event event = Event.builder()
@@ -55,17 +51,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review updateReview(Review review) {
-        if (reviewStorage.getReview(review.getReviewId()) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, review.getReviewId()));
-        }
-        if (userStorage.getUser(review.getUserId()) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, review.getUserId()));
-        }
-        if (filmStorage.getFilm(review.getFilmId()) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, review.getFilmId()));
-        }
+        getReview(review.getReviewId());
+        checkUserById(review.getUserId());
+        checkFilmById(review.getFilmId());
         Review newReview = Optional.ofNullable(reviewStorage.updateReview(review))
-                .orElseThrow(() -> new DbException(String.format(ExceptionMessages.UPDATE_REVIEW_ERROR, review)));
+                .orElseThrow(() -> new DbException(
+                        String.format(ExceptionMessages.UPDATE_REVIEW_ERROR, review.getReviewId())));
         newReview = reviewStorage.getReview(newReview.getReviewId()).get();
         newReview.setUseful(reviewStorage.getUseful(review.getReviewId()));
         Event event = Event.builder()
@@ -81,9 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void removeReview(Long reviewId) {
-        if (reviewStorage.getReview(reviewId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, reviewId));
-        }
+        getReview(reviewId);
         Event event = Event.builder()
                 .timestamp(Instant.now().toEpochMilli())
                 .userId(getReview(reviewId).getUserId())
@@ -104,9 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
                     .limit(count)
                     .toList();
         } else {
-            if (filmStorage.getFilm(filmId) == null) {
-                throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId));
-            }
+            checkFilmById(filmId);
             return reviewStorage.getFilmReviews(filmId)
                     .stream()
                     .limit(count)
@@ -116,45 +103,39 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void addReviewLike(Long reviewId, Long userId) {
-        if (reviewStorage.getReview(reviewId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, reviewId));
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId));
-        }
+        getReview(reviewId);
+        checkUserById(userId);
         reviewStorage.addLike(reviewId, userId);
     }
 
     @Override
     public void addReviewDislike(Long reviewId, Long userId) {
-        if (reviewStorage.getReview(reviewId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, reviewId));
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId));
-        }
+        getReview(reviewId);
+        checkUserById(userId);
         reviewStorage.addDislike(reviewId, userId);
     }
 
     @Override
     public void deleteReviewLike(Long reviewId, Long userId) {
-        if (reviewStorage.getReview(reviewId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, reviewId));
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId));
-        }
+        getReview(reviewId);
+        checkUserById(userId);
         reviewStorage.deleteLike(reviewId, userId);
     }
 
     @Override
     public void deleteReviewDislike(Long reviewId, Long userId) {
-        if (reviewStorage.getReview(reviewId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, reviewId));
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId));
-        }
+        getReview(reviewId);
+        checkUserById(userId);
         reviewStorage.deleteDislike(reviewId, userId);
+    }
+
+    private void checkUserById(Long userId) {
+        Optional.ofNullable(userStorage.getUser(userId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+    }
+
+    private void checkFilmById(Long filmId) {
+        Optional.ofNullable(filmStorage.getFilm(filmId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
     }
 }

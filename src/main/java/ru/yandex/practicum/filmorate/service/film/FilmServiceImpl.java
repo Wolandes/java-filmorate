@@ -39,8 +39,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film getFilm(Long filmId) {
-        Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
+        Film film = getFilmById(filmId);
         genreStorage.addGenresToFilm(film);
         directorStorage.addDirectorsToFilm(film);
         return film;
@@ -87,9 +86,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film updateFilm(Film film) throws NotFoundException {
-        if (filmStorage.getFilm(film.getId()) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, film.getId()));
-        }
+        getFilmById(film.getId());
         if (mpaaStorage.getMpaa(film.getMpa().getId()) == null) {
             throw new NotFoundException(String.format(ExceptionMessages.MPAA_NOT_FOUND_ERROR, film.getMpa().getId()));
         }
@@ -120,8 +117,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void removeFilm(Long filmId) {
-        Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
+        Film film = getFilmById(filmId);
         filmStorage.removeFilm(film);
     }
 
@@ -137,10 +133,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void addLike(Long filmId, Long userId) {
-        Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+        Film film = getFilmById(filmId);
+        User user = getUserById(userId);
         Event event = Event.builder()
                 .timestamp(Instant.now().toEpochMilli())
                 .userId(userId)
@@ -154,10 +148,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void removeLike(Long filmId, Long userId) {
-        Film film = Optional.ofNullable(filmStorage.getFilm(filmId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+        Film film = getFilmById(filmId);
+        User user = getUserById(userId);
         Event event = Event.builder()
                 .timestamp(Instant.now().toEpochMilli())
                 .userId(userId)
@@ -198,14 +190,22 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
-        User friend = Optional.ofNullable(userStorage.getUser(friendId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
         List<Film> films = Optional.ofNullable(filmStorage.getCommonFilms(user, friend))
                 .orElse(new ArrayList<>());
         genreStorage.addGenresToFilm(films);
         directorStorage.addDirectorsToFilm(films);
         return films;
+    }
+
+    private Film getFilmById(Long filmId) {
+        return Optional.ofNullable(filmStorage.getFilm(filmId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUND_ERROR, filmId)));
+    }
+
+    private User getUserById(Long userId) {
+        return Optional.ofNullable(userStorage.getUser(userId))
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
     }
 }
