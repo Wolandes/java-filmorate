@@ -54,42 +54,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(User user) throws NotFoundException {
-        if (userStorage.getUser(user.getId()) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, user.getId()));
-        }
+        getUser(user.getId());
         return userStorage.updateUser(user);
     }
 
     @Override
     public void removeUser(Long userId) {
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+        User user = getUser(userId);
         userStorage.removeUser(user);
     }
 
     @Override
     public List<User> getFriends(Long userId) {
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
+        User user = getUser(userId);
         return Optional.ofNullable(userStorage.getFriends(user))
                 .orElse(new ArrayList<>());
     }
 
     public List<User> getFriendsCommonOther(Long userId, Long otherUserId) {
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
-        User otherUser = Optional.ofNullable(userStorage.getUser(otherUserId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, otherUserId)));
+        User user = getUser(userId);
+        User otherUser = getUser(otherUserId);
         return Optional.ofNullable(userStorage.getFriendsCommonOther(user, otherUser))
                 .orElse(new ArrayList<>());
     }
 
     @Override
     public List<User> addFriend(Long userId, Long friendId) {
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
-        User friend = Optional.ofNullable(userStorage.getUser(friendId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         if (user.equals(friend))
             throw new ValidationException("Невозможно добавить в друзья самого себя");
         Event event = Event.builder()
@@ -105,10 +97,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
-        User friend = Optional.ofNullable(userStorage.getUser(friendId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, friendId)));
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         Event event = Event.builder()
                 .timestamp(Instant.now().toEpochMilli())
                 .userId(userId)
@@ -121,16 +111,13 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<Event> getFeed(Long userId) {
-        User user = Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId)));
-        return eventStorage.getFeed(userId);
+        User user = getUser(userId);
+        return eventStorage.getFeed(user.getId());
     }
 
     @Override
     public List<Film> findRecommendations(Long userId) {
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId));
-        }
+        getUser(userId);
         List<Long> likedFilms = filmStorage.getLikedFilm(userId);
         if (likedFilms.isEmpty()) {
             log.info("Список понравишься фильмов пуст");
