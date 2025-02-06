@@ -62,7 +62,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFilm(@PathVariable("userId") Long userId) {
+    public void removeUser(@PathVariable("userId") Long userId) {
         log.info("Вызван метод DELETE /users/{}", userId);
         userService.removeUser(userId);
         log.info("Метод DELETE /users/{} успешно выполнен", userId);

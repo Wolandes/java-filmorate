@@ -128,6 +128,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Film> findRecommendations(Long userId) {
+        if (userStorage.getUser(userId) == null) {
+            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUND_ERROR, userId));
+        }
         List<Long> likedFilms = filmStorage.getLikedFilm(userId);
         if (likedFilms.isEmpty()) {
             log.info("Список понравишься фильмов пуст");

@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.review;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -88,26 +89,16 @@ public class ReviewDbStorage implements ReviewStorage {
             """;
 
     private final NamedParameterJdbcOperations jdbc;
+    private final RowMapper<Review> mapper;
 
     @Override
     public Optional<Review> getReview(Long reviewId) {
         SqlParameterSource params = new MapSqlParameterSource("id", reviewId);
         try {
-            Review result = jdbc.query(GET_REVIEW, params, (ResultSet rs) -> {
-                Review review = new Review();
-                while (rs.next()) {
-                    review.setReviewId(rs.getLong("id"));
-                    review.setContent(rs.getString("content"));
-                    review.setUserId(rs.getLong("user_id"));
-                    review.setFilmId(rs.getLong("film_id"));
-                    review.setIsPositive(rs.getBoolean("is_positive"));
-                    review.setUseful(rs.getInt("useful"));
-                }
-                return review;
-            });
+            Review result = jdbc.queryForObject(GET_REVIEW, params, mapper);
 
-            if (result.getReviewId() != null) {
-                return Optional.ofNullable(result);
+            if (result != null && result.getReviewId() != null) {
+                return Optional.of(result);
             } else {
                 return Optional.empty();
             }
@@ -120,20 +111,7 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public List<Review> getAllReviews() {
         try {
-            return jdbc.query(GET_REVIEWS, (ResultSet rs) -> {
-                List<Review> reviews = new ArrayList<>();
-                while (rs.next()) {
-                    Review review = new Review();
-                    review.setReviewId(rs.getLong("id"));
-                    review.setContent(rs.getString("content"));
-                    review.setUserId(rs.getLong("user_id"));
-                    review.setFilmId(rs.getLong("film_id"));
-                    review.setIsPositive(rs.getBoolean("is_positive"));
-                    review.setUseful(rs.getInt("useful"));
-                    reviews.add(review);
-                }
-                return reviews;
-            });
+            return jdbc.query(GET_REVIEWS, mapper);
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.SELECT_ERROR));
         }
@@ -166,7 +144,7 @@ public class ReviewDbStorage implements ReviewStorage {
             jdbc.update(UPDATE_REVIEW, params);
             return review;
         } catch (DataAccessException ignored) {
-            throw new DbException(String.format(ExceptionMessages.UPDATE_REVIEW_ERROR, review));
+            throw new DbException(String.format(ExceptionMessages.UPDATE_REVIEW_ERROR, review.getReviewId()));
         }
     }
 
@@ -174,20 +152,7 @@ public class ReviewDbStorage implements ReviewStorage {
     public List<Review> getFilmReviews(Long filmId) {
         SqlParameterSource params = new MapSqlParameterSource("film_id", filmId);
         try {
-            return jdbc.query(GET_FILM_REVIEWS, params, (ResultSet rs) -> {
-                List<Review> reviews = new ArrayList<>();
-                while (rs.next()) {
-                    Review review = new Review();
-                    review.setReviewId(rs.getLong("id"));
-                    review.setContent(rs.getString("content"));
-                    review.setUserId(rs.getLong("user_id"));
-                    review.setFilmId(rs.getLong("film_id"));
-                    review.setIsPositive(rs.getBoolean("is_positive"));
-                    review.setUseful(rs.getInt("useful"));
-                    reviews.add(review);
-                }
-                return reviews;
-            });
+            return jdbc.query(GET_FILM_REVIEWS, params, mapper);
         } catch (DataAccessException ignored) {
             throw new DbException(String.format(ExceptionMessages.GET_FILM_REVIEWS_ERROR, filmId));
         }
